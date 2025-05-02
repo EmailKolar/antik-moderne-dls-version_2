@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Databases
+  user-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  product-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  basket-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: baskets
+    volumes:
+      - basket-db-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  # Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # AMQP
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
+  # Microservices
+  user-service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/services/user-service.Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@user-db:5432/users
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      CLERK_SECRET_KEY: your_clerk_secret
+    ports:
+      - "3001:3001"
+    depends_on:
+      - user-db
+      - rabbitmq
+
+  product-service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/services/product-service.Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@product-db:5432/products
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "3002:3002"
+    depends_on:
+      - product-db
+      - rabbitmq
+
+  email-service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/services/email-service.Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      RESEND_API_KEY: your_resend_api_key
+    ports:
+      - "3003:3003"
+    depends_on:
+      - rabbitmq
+
+  basket-service:
+    build:
+      context: ../backend
+      dockerfile: ../docker/services/basket-service.Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@basket-db:5432/baskets
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "3004:3004"
+    depends_on:
+      - basket-db
+      - rabbitmq
+
+volumes:
+  user-db-data:
+  product-db-data:
+  basket-db-data:
