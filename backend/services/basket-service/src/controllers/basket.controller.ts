@@ -9,7 +9,7 @@ class BasketController {
       const basket = await BasketService.createBasket(userId);
       res.status(201).json(basket);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
@@ -21,7 +21,7 @@ class BasketController {
       const item = await BasketService.addItem(basketId, productId, quantity);
       res.status(201).json(item);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
@@ -34,7 +34,7 @@ class BasketController {
       const updatedItem = await BasketService.updateItemQuantity(basketId, productId, quantity);
       res.status(200).json(updatedItem);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
@@ -46,7 +46,7 @@ class BasketController {
       const deletedItem = await BasketService.removeItem(basketId, productId);
       res.status(200).json(deletedItem);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
@@ -58,12 +58,12 @@ class BasketController {
       const clearedItems = await BasketService.clearBasket(basketId);
       res.status(200).json(clearedItems);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
 
-  // Get details of a basket
+  // Get details 
   async getBasket(req: Request, res: Response) {
     try {
       const { basketId } = req.params;
@@ -73,7 +73,7 @@ class BasketController {
       }
       res.status(200).json(basket);
     } catch (error) {
-      const err = error as Error; // Explicitly cast error to Error
+      const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
