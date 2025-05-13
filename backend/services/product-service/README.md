@@ -1,12 +1,15 @@
 
 
-... copy from other
+
 
 
 prereqs.
 install rabbitmq
 
-to run 
+copy .env.example to .env
+
+
+*to run* 
 
 npm i
 
