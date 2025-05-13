@@ -22,6 +22,10 @@ export const createProduct = async (req: Request, res: Response) => {
     const product = await productService.createProduct(data);
     res.status(201).json(product);
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    if (e instanceof Error) {
+      res.status(400).json({ error: e.message });
+    } else {
+      res.status(400).json({ error: 'An unknown error occurred' });
+    }
   }
 };
