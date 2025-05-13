@@ -27,6 +27,10 @@ A microservice for handling user-related operations with RabbitMQ and PostgreSQL
      ```bash
      docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
      ```
+   - or using chocolaty:
+      ```
+      https://community.chocolatey.org/packages/rabbitmq 
+      ```
 
 2. **Setup PostgreSQL with Docker**
    ```bash
