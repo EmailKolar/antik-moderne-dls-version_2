@@ -17,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/EmailKolar/antik-moderne-dls-version_2/issues"
   },
-  "homepage": "https://github.com/EmailKolar/antik-moderne-dls-version_2#readme"
+  "homepage": "https://github.com/EmailKolar/antik-moderne-dls-version_2#readme",
+  "devDependencies": {
+    "prisma": "^6.6.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0"
+  }
 }
