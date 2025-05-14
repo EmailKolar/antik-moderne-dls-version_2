@@ -48,7 +48,7 @@ export async function orderListener() {
           "order.confirmed",
           Buffer.from(
             JSON.stringify({
-              orderId: order.id,
+              orderId: order.orderId,
               status: "confirmed",
               items: order.items,
             })
@@ -56,7 +56,7 @@ export async function orderListener() {
         );
 
         // Acknowledge the message after successful processing
-        console.log(`Order confirmed: ${order.id}`);
+        console.log(`Order confirmed: ${order.orderId}`);
         channel.ack(msg);
       } catch (error) {
          const reason =
@@ -66,7 +66,7 @@ export async function orderListener() {
           "order.rejected",
           Buffer.from(
             JSON.stringify({
-              orderId: order.id,
+              orderId: order.orderId,
               status: "rejected",
               reason,
               items: order.items,
@@ -74,7 +74,7 @@ export async function orderListener() {
           )
         );
 
-        console.log(`Order rejected: ${order.id}`);
+        console.log(`Order rejected: ${order.orderId}`);
         // Reject the message without requeuing
         channel.nack(msg, false, false);
       }

@@ -25,7 +25,7 @@ export const publishEvent = async (queue: string, message: object) => {
   }
 
   console.log('Publishing event to RabbitMQ:', queue, message);
-  await channel.assertQueue(queue, { durable: false });
+  await channel.assertQueue(queue, { durable: true });
   channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
   console.log(` Sent message to ${queue}:`, message);
 };
@@ -75,7 +75,7 @@ export const consumeEvents = async () => {
       // Update the order status to 'rejected' in the database
       await prisma.order.update({
         where: { id: orderId },
-        data: { status: 'rejected', rejectionReason: reason },
+        data: { status: 'CANCELLED'},
       });
 
       console.log(`Order ${orderId} has been rejected. Reason: ${reason}`);
