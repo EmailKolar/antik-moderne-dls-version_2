@@ -22,7 +22,7 @@ export const publishEvent = async (queue: string, message: object) => {
     return;
   }
 
-  await channel.assertQueue(queue, { durable: false });
+  await channel.assertQueue(queue, { durable: true });
   channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
   console.log(` Sent message to ${queue}:`, message);
 };

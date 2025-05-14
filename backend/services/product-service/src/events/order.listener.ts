@@ -8,9 +8,9 @@ export async function orderListener() {
     return;
   }
 
-  await channel.assertQueue("order.created", { durable: false });
-  await channel.assertQueue("order.confirmed", { durable: false });
-  await channel.assertQueue("order.rejected", { durable: false });
+  await channel.assertQueue("order.created", { durable: true });
+  await channel.assertQueue("order.confirmed", { durable: true });
+  await channel.assertQueue("order.rejected", { durable: true });
 
   channel.consume("order.created", async (msg) => {
     if (msg !== null) {

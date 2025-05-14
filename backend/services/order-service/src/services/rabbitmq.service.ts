@@ -38,7 +38,7 @@ export const consumeEvents = async () => {
   }
 
   // Consume 'order.confirmed' events
-  await channel.assertQueue('order.confirmed', { durable: false });
+  await channel.assertQueue('order.confirmed', { durable: true });
   channel.consume('order.confirmed', async (msg) => {
     if (msg) {
       const message = JSON.parse(msg.content.toString());
@@ -64,7 +64,7 @@ export const consumeEvents = async () => {
   });
 
   // Consume 'order.rejected' events
-  await channel.assertQueue('order.rejected', { durable: false });
+  await channel.assertQueue('order.rejected', { durable: true });
   channel.consume('order.rejected', async (msg) => {
     if (msg) {
       const message = JSON.parse(msg.content.toString());

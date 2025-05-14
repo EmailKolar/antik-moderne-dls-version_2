@@ -14,14 +14,18 @@ class EmailService {
         to,
         subject,
         body,
-        eventType: eventType as EmailEventType,
+        eventType: EmailEventType.CHECKOUT,
         status: 'PENDING',
       },
     });
+  
 
     try {
       // Simulate sending the email (replace with actual email-sending logic)
       console.log(`Sending email to ${to} with subject "${subject}"`);
+
+     
+
       
       // Update the email status to SENT
       const updatedEmail = await prisma.email.update({
@@ -29,7 +33,7 @@ class EmailService {
         data: { status: 'SENT', sentAt: new Date() },
       });
 
-      // Publish a message to RabbitMQ
+     // Publish a message to RabbitMQ
       await RabbitMQService.publish('email.sent', {
         id: updatedEmail.id,
         to: updatedEmail.to,
@@ -37,7 +41,7 @@ class EmailService {
         eventType: updatedEmail.eventType,
         status: updatedEmail.status,
         sentAt: updatedEmail.sentAt,
-      });
+      }); 
 
       return updatedEmail;
     } catch (error) {
