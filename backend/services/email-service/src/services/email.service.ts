@@ -1,5 +1,9 @@
+import { EmailEventType } from '@prisma/client';
+import { EmailStatus } from '@prisma/client';
 import prisma from '../config/database';
 import RabbitMQService from './rabbitmq.service';
+
+
 
 class EmailService {
   // Send an email
@@ -10,7 +14,7 @@ class EmailService {
         to,
         subject,
         body,
-        eventType,
+        eventType: eventType as EmailEventType,
         status: 'PENDING',
       },
     });
@@ -63,7 +67,7 @@ class EmailService {
     });
   }
 
-  // Get all emails (with optional filters)
+/*   // Get all emails (with optional filters)
   async getAllEmails(status?: string, eventType?: string) {
     return prisma.email.findMany({
       where: {
@@ -71,7 +75,7 @@ class EmailService {
         eventType: eventType || undefined,
       },
     });
-  }
+  } */
 
   // Resend a failed email
   async resendEmail(id: string) {

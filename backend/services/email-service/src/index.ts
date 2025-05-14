@@ -41,6 +41,8 @@ const startServer = async () => {
   } catch (error) {
     console.error('Failed to start the server:', error);
   }
+
+  RabbitMQService.startConsumers();
 };
 
 startServer();

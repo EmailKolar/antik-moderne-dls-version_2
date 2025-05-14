@@ -1,6 +1,3 @@
-
-
-
 import amqp from 'amqplib';
 import dotenv from 'dotenv';
 

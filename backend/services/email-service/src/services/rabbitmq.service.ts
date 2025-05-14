@@ -1,4 +1,5 @@
 import { getRabbitMQChannel } from '../config/rabbitmq';
+import EmailService from './email.service';
 
 class RabbitMQService {
   async publish(queue: string, message: any) {
@@ -18,6 +19,22 @@ class RabbitMQService {
         onMessage(content);
         channel.ack(msg);
       }
+    });
+  }
+
+  async startConsumers() {
+    // Example: Consume 'email.orderConfirmed'
+    await this.consume('email.orderConfirmed', async (message) => {
+      console.log('Processing email.orderConfirmed event:', message);
+
+      // Call your email-sending logic here
+      const { orderId, items } = message;
+      await EmailService.sendEmail(
+        'user@example.com', // Replace with the user's email
+        `Order Confirmation - ${orderId}`,
+        `Your order has been confirmed. Items: ${JSON.stringify(items)}`,
+        'ORDER_CONFIRMED'
+      );
     });
   }
 }

@@ -9,6 +9,8 @@ export async function orderListener() {
   }
 
   await channel.assertQueue("order.created", { durable: false });
+  await channel.assertQueue("order.confirmed", { durable: false });
+  await channel.assertQueue("order.rejected", { durable: false });
 
   channel.consume("order.created", async (msg) => {
     if (msg !== null) {
@@ -41,15 +43,38 @@ export async function orderListener() {
           });
         }
 
+        // If all products have sufficient stock, publish 'order.confirmed'
+        channel.sendToQueue(
+          "order.confirmed",
+          Buffer.from(
+            JSON.stringify({
+              orderId: order.id,
+              status: "confirmed",
+              items: order.items,
+            })
+          )
+        );
+
         // Acknowledge the message after successful processing
+        console.log(`Order confirmed: ${order.id}`);
         channel.ack(msg);
       } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error processing order:", error.message);
-        } else {
-          console.error("Error processing order:", error);
-        }
+         const reason =
+          error instanceof Error ? error.message : "Unknown error occurred";
 
+        channel.sendToQueue(
+          "order.rejected",
+          Buffer.from(
+            JSON.stringify({
+              orderId: order.id,
+              status: "rejected",
+              reason,
+              items: order.items,
+            })
+          )
+        );
+
+        console.log(`Order rejected: ${order.id}`);
         // Reject the message without requeuing
         channel.nack(msg, false, false);
       }
