@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Basket {
+  id        String   @id @default(uuid())
+  userId    String   // User ID passed from the user-service
+  items     BasketItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BasketItem {
+  id        String   @id @default(uuid())
+  basketId  String
+  basket    Basket   @relation(fields: [basketId], references: [id])
+  productId String   // ID of the product
+  quantity  Int      // Quantity of the product in the basket
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

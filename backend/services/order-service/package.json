@@ -1,5 +1,5 @@
 {
-  "name": "product-service",
+  "name": "order-service",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
@@ -9,8 +9,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-     "seed": "ts-node prisma/seed.ts"
+    "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
@@ -37,3 +36,4 @@
     "typescript": "^5.0.0"
   }
 }
+

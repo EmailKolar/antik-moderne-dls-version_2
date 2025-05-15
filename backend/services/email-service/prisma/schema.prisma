@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Email {
+  id          String   @id @default(uuid())
+  to          String   // Recipient email address
+  subject     String   // Email subject
+  body        String   // Email body content
+  status      EmailStatus @default(PENDING) // Status of the email
+  eventType   EmailEventType // Type of email event (e.g., SIGN_UP, CHECKOUT)
+  createdAt   DateTime @default(now()) // When the email was created
+  sentAt      DateTime? // When the email was sent
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum EmailEventType {
+  SIGN_UP
+  CHECKOUT
+  OTHER
+}
