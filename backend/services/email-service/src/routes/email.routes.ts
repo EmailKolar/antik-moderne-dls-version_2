@@ -10,6 +10,6 @@ router.post('/emails', EmailController.sendEmail);
 router.get('/emails/:id', EmailController.getEmailById);
 
 // Get all emails (optional: with filters like status or eventType)
-router.get('/emails', EmailController.getAllEmails);
+//router.get('/emails', EmailController.getAllEmails);
 
 export default router;

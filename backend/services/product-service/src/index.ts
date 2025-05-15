@@ -15,7 +15,7 @@ app.use(express.json());
 app.use('/products', productRoutes);
 app.get('/', (req, res) => res.send('Product Service Running '));
 
-const PORT = process.env.PORT || 4002;
+const PORT = process.env.PORT || 3002;
 
 async function start() {
   await prisma.$connect();
