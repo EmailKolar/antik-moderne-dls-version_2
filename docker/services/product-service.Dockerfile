@@ -9,11 +9,13 @@ RUN npm install
 COPY . .
 
 
-
 RUN npm run build
+
+RUN apk add --no-cache openssl
 
 RUN npx prisma generate
 
-RUN apk add --no-cache openssl
+
+
 
 CMD ["npm", "start"]

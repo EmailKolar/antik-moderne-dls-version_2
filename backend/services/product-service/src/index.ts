@@ -5,6 +5,8 @@ import productRoutes from './routes/product.routes';
 import { connectRabbitMQ } from './services/rabbitmq.service';
 import { prisma } from './config/database';
 import { orderListener } from "./events/order.listener";
+import { seed } from "./config/seed";
+
 
 dotenv.config();
 
@@ -19,8 +21,11 @@ const PORT = process.env.PORT || 3002;
 
 async function start() {
   await prisma.$connect();
+
   await connectRabbitMQ();
   await orderListener();
+
+
 
   app.listen(PORT, () => {
     console.log(` Product service running on http://localhost:${PORT}`);

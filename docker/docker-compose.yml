@@ -18,7 +18,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: products
+      POSTGRES_DB: productdb
     volumes:
       - product-db-data:/var/lib/postgresql/data
     ports:
@@ -84,7 +84,7 @@ services:
       context: ../backend/services/user-service
       dockerfile: ../../../docker/services/user-service.Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@user-db:5432/user_service?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@user-db:5432/users?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       CLERK_SECRET_KEY: your_clerk_secret
     ports:
@@ -98,7 +98,7 @@ services:
       context: ../backend/services/product-service
       dockerfile: ../../../docker/services/product-service.Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:password@product-db:5433/products?schema=public
+      DATABASE_URL: postgresql://postgres:password@product-db:5432/productdb?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
     ports:
       - "3002:3002"
