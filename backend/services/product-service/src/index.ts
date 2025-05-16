@@ -5,7 +5,6 @@ import productRoutes from './routes/product.routes';
 import { connectRabbitMQ } from './services/rabbitmq.service';
 import { prisma } from './config/database';
 import { orderListener } from "./events/order.listener";
-import { seed } from "./config/seed";
 
 
 dotenv.config();

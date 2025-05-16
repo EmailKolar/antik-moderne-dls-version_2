@@ -113,7 +113,7 @@ services:
       context: ../backend/services/basket-service
       dockerfile: ../../../docker/services/basket-service.Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:password@basket-db:5434/basketdb?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@basket-db:5432/baskets?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
     ports:
       - "3003:3003"
@@ -126,7 +126,7 @@ services:
       context: ../backend/services/email-service
       dockerfile: ../../../docker/services/email-service.Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:password@localhost:5435/emaildb?schema=public
+      DATABASE_URL: postgresql://postgres:password@email-db:5432/emaildb?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
     ports:
       - "3004:3004"
@@ -139,7 +139,7 @@ services:
       context: ../backend/services/order-service
       dockerfile: ../../../docker/services/order-service.Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:password@localhost:5436/orderdb
+      DATABASE_URL: postgresql://postgres:postgres@order-db:5432/orders?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
     ports:
       - "3005:3005"
