@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 🐘 Databases
+  # Databases
   user-db:
     image: postgres:16
     environment:
@@ -51,6 +51,7 @@ services:
     ports:
       - "5436:5432"
 
+
   email-db:
     image: postgres:16
     environment:
@@ -62,12 +63,12 @@ services:
     ports:
       - "5435:5432"
 
-  # 🐰 RabbitMQ
+  # Message Broker
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"  # AMQP
+      - "15672:15672"  # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
@@ -77,8 +78,7 @@ services:
       timeout: 10s
       retries: 5
 
-  # 🧩 Microservices
-
+  # Microservices
   user-service:
     build:
       context: ../backend/services/user-service
@@ -87,15 +87,11 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@user-db:5432/users?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       CLERK_SECRET_KEY: your_clerk_secret
-    volumes:
-      - ../backend/services/user-service:/app
-    command: npm run dev
     ports:
       - "3001:3001"
     depends_on:
       rabbitmq:
         condition: service_healthy
-
 
   product-service:
     build:
@@ -104,9 +100,6 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:password@product-db:5432/productdb?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    volumes:
-      - ../backend/services/product-service:/app
-    command: npm run dev
     ports:
       - "3002:3002"
     depends_on:
@@ -122,15 +115,11 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@basket-db:5432/baskets?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    volumes:
-      - ../backend/services/basket-service:/app
-    command: npm run dev
     ports:
       - "3003:3003"
     depends_on:
       rabbitmq:
         condition: service_healthy
-
 
   email-service:
     build:
@@ -139,15 +128,11 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:password@email-db:5432/emaildb?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    volumes:
-      - ../backend/services/email-service:/app
-    command: npm run dev
     ports:
       - "3004:3004"
     depends_on:
       rabbitmq:
         condition: service_healthy
-
 
   order-service:
     build:
@@ -156,9 +141,6 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@order-db:5432/orders?schema=public
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    volumes:
-      - ../backend/services/order-service:/app
-    command: npm run dev
     ports:
       - "3005:3005"
     depends_on:
