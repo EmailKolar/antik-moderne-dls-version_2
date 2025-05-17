@@ -29,3 +29,19 @@ export const createProduct = async (req: Request, res: Response) => {
     }
   }
 };
+
+//get the price of a product
+export const getProductPrice = async (req: Request, res: Response) => {
+  const { productId } = req.params;
+
+  try {
+    const price = await productService.getProductPrice(productId);
+    res.json({ price });
+  } catch (e) {
+    if (e instanceof Error) {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(500).json({ error: 'An unknown error occurred' });
+    }
+  }
+}

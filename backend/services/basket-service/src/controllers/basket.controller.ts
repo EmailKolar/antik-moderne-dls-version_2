@@ -77,6 +77,17 @@ class BasketController {
       res.status(500).json({ error: err.message });
     }
   }
+  // Checkout a basket
+  async checkoutBasket(req: Request, res: Response) {
+    try {
+      const { basketId } = req.params;
+      const checkoutResult = await BasketService.checkoutBasket(basketId);
+      res.status(200).json(checkoutResult);
+    } catch (error) {
+      const err = error as Error; 
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 export default new BasketController();
