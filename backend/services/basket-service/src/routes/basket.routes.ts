@@ -21,4 +21,7 @@ router.delete('/baskets/:basketId/items', BasketController.clearBasket);
 // Get details of a basket
 router.get('/baskets/:basketId', BasketController.getBasket);
 
+// Checkout a basket
+router.post('/baskets/:basketId/checkout', BasketController.checkoutBasket);
+
 export default router;
