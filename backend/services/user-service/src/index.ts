@@ -13,6 +13,16 @@ console.log('Environment variables loaded');
 
 const app = express();
 
+import client from 'prom-client';
+
+// Prometheus metrics endpoint
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());

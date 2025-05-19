@@ -147,6 +147,13 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  prometheus:
+  image: prom/prometheus
+  volumes:
+    - ../backend/services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  ports:
+    - "9090:9090"
+
 
 volumes:
   user-db-data:
