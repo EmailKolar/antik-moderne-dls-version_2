@@ -1,32 +1,39 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { createOrder as createOrderInService } from '../services/order.service';
-import { publishEvent } from '../services/rabbitmq.service';
-const prisma = new PrismaClient();
+import { OrderService } from '../services/order.service';
+import RabbitMQService from '../services/rabbitmq.service';
 
+export class OrderController {
+  private orderService: OrderService;
 
-export const createOrder = async (req: Request, res: Response) => {
-  const { userId, items } = req.body;
+  constructor() {
+    this.orderService = new OrderService();
+  }
 
-  const order = await createOrderInService(userId, items);
+  async createOrder(req: Request, res: Response) {
+    try {
+      const { userId, items } = req.body;
+      const order = await this.orderService.createOrder(userId, items);
 
-  await publishEvent('order.created', {
-    orderId: order.id,
-    userId: order.userId,
-    totalAmount: order.totalAmount,
-    items: order.items,
-  });
+      await RabbitMQService.publishEvent('order.created', {
+        orderId: order.id,
+        userId: order.userId,
+        totalAmount: order.totalAmount,
+        items: order.items,
+      });
 
-  res.status(201).json(order);
-};
+      res.status(201).json(order);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+    }
+  }
 
-export const getUserOrders = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
-  const orders = await prisma.order.findMany({
-    where: { userId },
-    include: { items: true },
-  });
-
-  res.json(orders);
-};
+  async getUserOrders(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const orders = await this.orderService.getOrdersByUserId(userId);
+      res.json(orders);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+    }
+  }
+}

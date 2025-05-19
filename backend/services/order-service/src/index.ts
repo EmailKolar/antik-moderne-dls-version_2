@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import orderRoutes from './routes/order.routes';
-import { connectRabbitMQ, consumeEvents } from './services/rabbitmq.service';
+import RabbitMQService from './services/rabbitmq.service';
 
 dotenv.config();
 const app = express();
@@ -17,12 +17,12 @@ const PORT = process.env.PORT || 3005;
 
 const start = async () => {
   try {
-    // Connect to RabbitMQ
-    await connectRabbitMQ();
+    // Connect to RabbitMQ using the class-based service
+    await RabbitMQService.connect();
     console.log('RabbitMQ connected successfully.');
 
     // Start consuming events
-    await consumeEvents();
+    await RabbitMQService.consumeEvents();
     console.log('RabbitMQ consumers started.');
 
     // Start the Express server
