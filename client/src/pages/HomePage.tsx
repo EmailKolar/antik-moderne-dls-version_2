@@ -1,5 +1,7 @@
 //import { Box, Grid, GridItem, HStack, Show } from "@chakra-ui/react";
 
+import ProductGrid from "../domain/Product/ProductGrid";
+
 //import useGameQueryStore from "../state";
 
 
@@ -12,7 +14,10 @@ function HomePage() {
 
 
   return (
-   <></>
+   <>
+   <ProductGrid></ProductGrid>
+   
+   </>
   );
 }
 
