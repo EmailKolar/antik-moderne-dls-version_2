@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as productService from '../services/product.service';
+import { ProductService } from '../services/product.service';
 import { z } from 'zod';
 
 const productSchema = z.object({
@@ -11,37 +11,44 @@ const productSchema = z.object({
   stock: z.number()
 });
 
-export const getAllProducts = async (_: Request, res: Response) => {
-  const products = await productService.getAllProducts();
-  res.json(products);
-};
+export class ProductController {
+  private productService: ProductService;
 
-export const createProduct = async (req: Request, res: Response) => {
-  try {
-    const data = productSchema.parse(req.body);
-    const product = await productService.createProduct(data);
-    res.status(201).json(product);
-  } catch (e) {
-    if (e instanceof Error) {
-      res.status(400).json({ error: e.message });
-    } else {
-      res.status(400).json({ error: 'An unknown error occurred' });
+  constructor() {
+    this.productService = new ProductService();
+  }
+
+  async getAllProducts(_: Request, res: Response) {
+    const products = await this.productService.getAllProducts();
+    res.json(products);
+  }
+
+  async createProduct(req: Request, res: Response) {
+    try {
+      const data = productSchema.parse(req.body);
+      const product = await this.productService.createProduct(data);
+      res.status(201).json(product);
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(400).json({ error: e.message });
+      } else {
+        res.status(400).json({ error: 'An unknown error occurred' });
+      }
     }
   }
-};
 
-//get the price of a product
-export const getProductPrice = async (req: Request, res: Response) => {
-  const { productId } = req.params;
+  async getProductPrice(req: Request, res: Response) {
+    const { productId } = req.params;
 
-  try {
-    const price = await productService.getProductPrice(productId);
-    res.json({ price });
-  } catch (e) {
-    if (e instanceof Error) {
-      res.status(404).json({ error: e.message });
-    } else {
-      res.status(500).json({ error: 'An unknown error occurred' });
+    try {
+      const price = await this.productService.getProductPrice(productId);
+      res.json({ price });
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(404).json({ error: e.message });
+      } else {
+        res.status(500).json({ error: 'An unknown error occurred' });
+      }
     }
   }
 }
