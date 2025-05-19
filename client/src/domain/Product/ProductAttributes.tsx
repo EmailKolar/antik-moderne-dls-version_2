@@ -1,4 +1,4 @@
-import {SimpleGrid, Text} from "@chakra-ui/react";
+import {SimpleGrid} from "@chakra-ui/react";
 import { Product } from "./Product";
 import DefinitionItem from "../../components/DefinitionItem";
 
