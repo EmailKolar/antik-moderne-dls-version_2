@@ -1,30 +1,83 @@
-import amqp from 'amqplib';
-import dotenv from 'dotenv';
+import { getRabbitMQChannel } from '../config/rabbitmq';
+import { prisma } from '../config/database';
 
-dotenv.config();
+class RabbitMQService {
+  private channel;
 
-let channel: amqp.Channel;
-export const getChannel = () => channel;
-
-export const connectRabbitMQ = async () => {
-  try {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost');
-    channel = await connection.createChannel();
-    console.log('Connected to RabbitMQ');
-  } catch (err) {
-    console.error('Failed to connect to RabbitMQ', err);
-  }
-};
-
-export const publishEvent = async (queue: string, message: object) => {
-  if (!channel) {
-    console.error('RabbitMQ channel not initialized');
-    return;
+  constructor() {
+    this.channel = getRabbitMQChannel();
   }
 
-  await channel.assertQueue(queue, { durable: true });
-  channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
-  console.log(` Sent message to ${queue}:`, message);
-};
+  async startOrderListener() {
+    if (!this.channel) {
+      console.error("RabbitMQ channel not initialized");
+      return;
+    }
 
+    await this.channel.assertQueue("order.created", { durable: true });
+    await this.channel.assertQueue("order.confirmed", { durable: true });
+    await this.channel.assertQueue("order.rejected", { durable: true });
 
+    this.channel.consume("order.created", async (msg) => {
+      if (msg !== null) {
+        const order = JSON.parse(msg.content.toString());
+        console.log("Received order:", order);
+
+        try {
+          // Check if the products exist and have enough stock
+          for (const item of order.items) {
+            const product = await prisma.product.findUnique({
+              where: { id: item.productId },
+            });
+
+            if (!product) {
+              throw new Error(`Product with ID ${item.productId} not found`);
+            }
+            if (product.stock < item.quantity) {
+              throw new Error(`Not enough stock for product ID ${item.productId}`);
+            }
+          }
+
+          // Update the product stock
+          for (const item of order.items) {
+            await prisma.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: item.quantity } },
+            });
+          }
+
+          // Publish 'order.confirmed'
+          this.channel.sendToQueue(
+            "order.confirmed",
+            Buffer.from(
+              JSON.stringify({
+                orderId: order.orderId,
+                status: "confirmed",
+                items: order.items,
+              })
+            )
+          );
+          console.log(`Order confirmed: ${order.orderId}`);
+          this.channel.ack(msg);
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : "Unknown error occurred";
+          this.channel.sendToQueue(
+            "order.rejected",
+            Buffer.from(
+              JSON.stringify({
+                orderId: order.orderId,
+                status: "rejected",
+                reason,
+                items: order.items,
+              })
+            )
+          );
+          console.log(`Order rejected: ${order.orderId}`);
+          this.channel.nack(msg, false, false);
+        }
+      }
+    });
+  }
+}
+
+export default new RabbitMQService();

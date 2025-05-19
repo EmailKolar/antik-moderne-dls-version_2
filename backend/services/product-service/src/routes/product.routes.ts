@@ -1,12 +1,11 @@
 import express from 'express';
-import { getAllProducts, createProduct, getProductPrice } from '../controllers/product.controller';
-
+import { ProductController } from '../controllers/product.controller';
 
 const router = express.Router();
+const productController = new ProductController();
 
-router.get('/', getAllProducts);
-router.post('/', createProduct); // Add auth middleware for admin if needed
+router.get('/', productController.getAllProducts.bind(productController));
+router.post('/', productController.createProduct.bind(productController));
+router.get('/:productId/price', productController.getProductPrice.bind(productController));
 
-//get the price of a product
-router.get('/:productId/price', getProductPrice); // Add auth middleware for admin if needed
 export default router;

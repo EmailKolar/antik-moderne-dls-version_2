@@ -17,7 +17,6 @@ const startServer = async () => {
 
     RabbitMQService.consume('basket.created', (message) => {
       console.log('Received basket.created event:', message);
-      // Add your logic to handle the event here
     });
 
     // Start the server
