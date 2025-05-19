@@ -70,6 +70,23 @@ class BasketService {
       include: { items: true },
     });
   }
+  // Checkout a basket
+  async checkoutBasket(basketId: string) {
+    const basket = await prisma.basket.findUnique({
+      where: { id: basketId },
+      include: { items: true },
+    });
+
+    if (!basket) {
+      throw new Error('Basket not found');
+    }
+
+    console.log('Basket checked out!!!!!!!!!!!!!:', basket);
+    // Publish a message to RabbitMQ
+    await RabbitMQService.publish('basket.checked_out',  {basket });
+
+    return basket;
+  }
 }
 
 export default new BasketService();

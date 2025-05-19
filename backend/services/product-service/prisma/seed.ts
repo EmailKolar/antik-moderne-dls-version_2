@@ -45,9 +45,11 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e);
+    console.error(" Seeding failed:", e);
     
   })
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+export { main as seed };

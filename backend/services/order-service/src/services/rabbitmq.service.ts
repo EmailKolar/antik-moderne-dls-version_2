@@ -2,6 +2,8 @@ import amqp from 'amqplib';
 import dotenv from 'dotenv';
 import prisma from '../config/database';
 import { OrderStatus } from '@prisma/client';
+import { create } from 'domain';
+import {createOrder} from './order.service';
 
 dotenv.config();
 
@@ -82,4 +84,28 @@ export const consumeEvents = async () => {
       channel.ack(msg);
     }
   });
+
+  // consume basket events
+  await channel.assertQueue('basket.checked_out', { durable: true });
+  channel.consume('basket.checked_out', async (msg) => {
+    if (msg) {
+      const basket = JSON.parse(msg.content.toString());
+
+      console.log('Processing basket.checked_out event:', basket);
+      console.log('Processing basket.checked_out event:!!!!!!!', basket.items);
+
+      const order = await createOrder(basket.userId, basket.items);
+      console.log(`Order created for basket ${basket.id}`);
+      channel.ack(msg);
+
+      // Publish the event to the 'order.created' queue for the order-service
+      await publishEvent('order.created', {
+        orderId: order.id,
+        items: order.items,
+        status: order.status,
+      });
+      console.log(`Order ${order.id} has been created.`);
+  }
+  });
+
 };

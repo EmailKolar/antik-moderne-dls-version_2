@@ -30,7 +30,7 @@ class EmailController {
   }
 
   // Get all emails
-  async getAllEmails(req: Request, res: Response) {
+  /* async getAllEmails(req: Request, res: Response) {
     try {
       const { status, eventType } = req.query;
       const emails = await EmailService.getAllEmails(status as string, eventType as string);
@@ -39,7 +39,7 @@ class EmailController {
       const err = error as Error;
       res.status(500).json({ error: err.message });
     }
-  }
+  } */
 }
 
 export default new EmailController();

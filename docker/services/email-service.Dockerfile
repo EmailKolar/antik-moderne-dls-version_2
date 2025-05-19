@@ -1,4 +1,4 @@
-# docker/services/user-service.Dockerfile
+# Dockerfile for Email Service
 FROM node:20-alpine
 
 WORKDIR /app
@@ -10,4 +10,5 @@ COPY . .
 RUN npm run build
 RUN npx prisma generate
 RUN apk add --no-cache openssl
+
 CMD ["npm", "start"]

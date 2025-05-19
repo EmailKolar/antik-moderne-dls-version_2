@@ -1,5 +1,5 @@
 {
-  "name": "basket-service",
+  "name": "email-service",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
