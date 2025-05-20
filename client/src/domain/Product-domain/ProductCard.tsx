@@ -1,8 +1,9 @@
 import { Card, CardBody, Heading, HStack, Image } from "@chakra-ui/react";
-import {Product} from "./Product"
-
 import { Link } from "react-router-dom";
-const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"
+import { Product } from "./Product";
+
+const PLACEHOLDER_IMAGE = "https://placehold.co/600x400";
+
 interface Props {
     product: Product;
 }
@@ -10,7 +11,18 @@ interface Props {
 const ProductCard = ({ product }: Props) => {
     return (
         <Card overflow={"hidden"} borderRadius={10}>
-            <Image src={product.imageUrl !== "" ? product.imageUrl : PLACEHOLDER_IMAGE} alt={product.name} />
+            <Link to={`/products/${product.id}`}>
+                <Image
+                    src={product.imageUrl !== "" ? product.imageUrl : PLACEHOLDER_IMAGE}
+                    alt={product.name}
+                    maxW="400px"
+                    maxH="400px"
+                    objectFit="contain"
+                    display="block"
+                    mx="auto"
+                    width="100%"
+                />
+            </Link>
             <CardBody>
                 <Heading fontSize="2xl">
                     <HStack>
@@ -22,11 +34,7 @@ const ProductCard = ({ product }: Props) => {
                         </span>
                     </HStack>
                 </Heading>
-                <HStack justifyContent={"space-between"}>
-                   
-                </HStack>
-                
-
+                <HStack justifyContent={"space-between"}></HStack>
             </CardBody>
         </Card>
     );

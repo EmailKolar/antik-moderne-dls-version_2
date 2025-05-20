@@ -2,23 +2,14 @@ import { getRabbitMQChannel } from '../config/rabbitmq';
 import { prisma } from '../config/database';
 
 class RabbitMQService {
-  private channel;
-
-  constructor() {
-    this.channel = getRabbitMQChannel();
-  }
-
   async startOrderListener() {
-    if (!this.channel) {
-      console.error("RabbitMQ channel not initialized");
-      return;
-    }
+    const channel = getRabbitMQChannel(); 
 
-    await this.channel.assertQueue("order.created", { durable: true });
-    await this.channel.assertQueue("order.confirmed", { durable: true });
-    await this.channel.assertQueue("order.rejected", { durable: true });
+    await channel.assertQueue("order.created", { durable: true });
+    await channel.assertQueue("order.confirmed", { durable: true });
+    await channel.assertQueue("order.rejected", { durable: true });
 
-    this.channel.consume("order.created", async (msg) => {
+    channel.consume("order.created", async (msg) => {
       if (msg !== null) {
         const order = JSON.parse(msg.content.toString());
         console.log("Received order:", order);
@@ -47,7 +38,7 @@ class RabbitMQService {
           }
 
           // Publish 'order.confirmed'
-          this.channel.sendToQueue(
+          channel.sendToQueue(
             "order.confirmed",
             Buffer.from(
               JSON.stringify({
@@ -58,10 +49,10 @@ class RabbitMQService {
             )
           );
           console.log(`Order confirmed: ${order.orderId}`);
-          this.channel.ack(msg);
+          channel.ack(msg);
         } catch (error) {
           const reason = error instanceof Error ? error.message : "Unknown error occurred";
-          this.channel.sendToQueue(
+          channel.sendToQueue(
             "order.rejected",
             Buffer.from(
               JSON.stringify({
@@ -73,7 +64,7 @@ class RabbitMQService {
             )
           );
           console.log(`Order rejected: ${order.orderId}`);
-          this.channel.nack(msg, false, false);
+          channel.nack(msg, false, false);
         }
       }
     });

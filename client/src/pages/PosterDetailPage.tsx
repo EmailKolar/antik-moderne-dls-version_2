@@ -1,42 +1,78 @@
-import { Heading, Spinner } from "@chakra-ui/react";
-//import useProduct from "../domain/product/useProduct";
-import useProducts from "../domain/product/useProducts";
+import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, Button, useToast } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-//import ExpandableText from "../components/ExpandableText";
-import ProductAttributes from "../domain/product/ProductAttributes";
-const PosterDetailPage = () => {
-    console.log("PosterDetailPage!!!!");
-  const { id } = useParams();
-  console.log(id);
-  //const { data: product, error, isLoading } = useProduct(id!);
-    const {data, error} = useProducts();
-    const product = data?.find((product) => product.id === (id!));
+import useProduct from "../domain/Product-domain/useProduct";
+import ProductAttributes from "../domain/Product-domain/ProductAttributes";
+import { useBasketStore } from "../domain/Basket/useBasketStore";
+import { useUser } from "@clerk/clerk-react";
 
-  //if (isLoading) return <Spinner />;
+const PosterDetailPage = () => {
+  const { id } = useParams();
+  const { data: product, error, isLoading } = useProduct(id);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+  const { user } = useUser();
+  const addToBasket = useBasketStore((state) => state.addToBasket);
+
+  if (!id) return <Spinner />;
+  if (isLoading) return <Spinner />;
   if (error || !product) throw error;
+
+  const imageUrl = product.imageUrl !== "" ? product.imageUrl : "https://placehold.co/600x400";
+
+  const handleAddToBasket = () => {
+    if (user && product) {
+      addToBasket(user.id, { productId: product.id, quantity: 1 });
+      toast({
+        title: "Added to basket",
+        description: `${product.name} was added to your basket.`,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <>
-        <Heading as="h1" size="2xl" mb={4}>
-            {product.name}
-        </Heading>
-        <img
-            src={
-            product.imageUrl !== ""
-                ? product.imageUrl
-                : "https://placehold.co/600x400"
-            }
-            alt={product.name}
-        />
-        <ProductAttributes product={product}></ProductAttributes>
-
-      
+      <Heading as="h1" size="2xl" mb={4}>
+        {product.name}
+      </Heading>
+      <Image
+        src={imageUrl}
+        alt={product.name}
+        maxW="400px"
+        maxH="400px"
+        objectFit="contain"
+        mb={4}
+        borderRadius="md"
+        boxShadow="md"
+        cursor="pointer"
+        onClick={onOpen}
+      />
+      <ProductAttributes product={product} />
+      <Button colorScheme="teal" size="lg" mb={6} onClick={handleAddToBasket}>
+        Add to Basket
+      </Button>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
+        <ModalOverlay />
+        <ModalContent bg="transparent" boxShadow="none" maxW="90vw" maxH="90vh">
+          <ModalBody display="flex" justifyContent="center" alignItems="center" p={0}>
+            <Image
+              src={imageUrl}
+              alt={product.name}
+              maxW="90vw"
+              maxH="80vh"
+              objectFit="contain"
+              borderRadius="md"
+              boxShadow="lg"
+              onClick={onClose}
+              cursor="zoom-out"
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
 
 export default PosterDetailPage;
-
-
-//TODO: get the correct endpoint
-//TODO: add a add to cart button
