@@ -5,6 +5,17 @@ export class ProductService {
     return prisma.product.findMany();
   }
 
+  async getProductById(productId: string) {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    return product;
+  }
   async createProduct(data: any) {
     return prisma.product.create({ data });
   }
