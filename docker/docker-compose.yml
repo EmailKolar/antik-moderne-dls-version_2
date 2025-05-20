@@ -89,6 +89,30 @@ services:
       - minio-data:/data
     command: server /data --console-address ":9001"
 
+  #Client
+  client:
+    build:
+      context: ../client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../client:/app:cached
+      - /app/node_modules
+    depends_on:
+      - user-service
+      - product-service
+      - basket-service
+      - order-service
+      - email-service
+      - minio
+    environment:
+      VITE_API_URL: "http://localhost:"
+      VITE_API_PORT_PRODUCT: 3002
+      VITE_API_PORT_BASKET: 3003
+
+
+
   # 🧩 Microservices
 
   user-service:
