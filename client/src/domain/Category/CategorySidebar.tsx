@@ -22,7 +22,7 @@ const CategorySidebar = ({ selectedCategoryId, onSelectCategory, useCategoryHook
   if (isLoading) return <Spinner />;
 
   return (
-    <Box as="aside" minW="220px" p={4} borderRight="1px solid #eee">
+    <Box as="aside" minW="220px" p={4} >
       <Button variant="link" onClick={() => onSelectCategory(undefined)}>
         <Heading size="md" mb={4}>Categories</Heading>
       </Button>
