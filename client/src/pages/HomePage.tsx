@@ -1,23 +1,26 @@
-//import { Box, Grid, GridItem, HStack, Show } from "@chakra-ui/react";
+import { HStack, Box, Flex } from "@chakra-ui/react";
+import { useState } from "react";
 
-import ProductGrid from "../domain/product/ProductGrid";
-
-//import useGameQueryStore from "../state";
-
+import CategorySidebar from "../domain/Category/CategorySidebar";
+import ProductGrid from "../domain/Product-domain/ProductGrid";
+import useCategory from "../domain/Category/useCategory";
 
 function HomePage() {
-/*   const {genreId, storeId} = 
-    useGameQueryStore((s) => s.gameQuery);
-  const setGenreId = useGameQueryStore((s) => s.setGenreId);
-  const setStoreId = useGameQueryStore((s) => s.setStoreId);
-   */
-
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
 
   return (
-   <>
-   <ProductGrid></ProductGrid>
-   
-   </>
+    <HStack align="start" spacing={0}>
+      <Box minW="200px" maxW="220px" width="5%">
+        <CategorySidebar
+          selectedCategoryId={selectedCategoryId}
+          onSelectCategory={setSelectedCategoryId}
+          useCategoryHook={useCategory}
+        />
+      </Box>
+      <Box flex="1" p={4}>
+        <ProductGrid selectedCategoryId={selectedCategoryId} />
+      </Box>
+    </HStack>
   );
 }
 

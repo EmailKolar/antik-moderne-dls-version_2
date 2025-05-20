@@ -5,14 +5,21 @@ import ProductCard from "./ProductCard";
 import ProductCardContainer from "./ProductCardContainer";
 
 
-const ProductGrid = () => {
-  //const skeletons = [...Array(20).keys()];
+interface Props {
+  selectedCategoryId?: string;
+}
 
+const ProductGrid = ({ selectedCategoryId }: Props) => {
   const { data, error, } = useProducts();
   console.log(data)
 
   if (error) return <Text color="tomato">{error.message}</Text>;
 
+
+  // Filter products by category if selectedCategoryId is provided
+  const filteredProducts = selectedCategoryId
+    ? data?.filter((product) => product.category === selectedCategoryId)
+    : data;
 
   return (
   
@@ -22,7 +29,7 @@ const ProductGrid = () => {
         paddingY={10}
       >
   
-          {data?.map((product) => (
+          {filteredProducts?.map((product) => (
             <ProductCardContainer key={product.id}>
               <ProductCard product={product} />
             </ProductCardContainer>
