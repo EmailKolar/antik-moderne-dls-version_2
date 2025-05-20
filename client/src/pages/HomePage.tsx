@@ -1,6 +1,6 @@
 //import { Box, Grid, GridItem, HStack, Show } from "@chakra-ui/react";
 
-import ProductGrid from "../domain/product/ProductGrid";
+import ProductGrid from "../domain/Product-domain/ProductGrid";
 
 //import useGameQueryStore from "../state";
 

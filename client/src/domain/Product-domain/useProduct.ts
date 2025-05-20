@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Product } from "./Product";
 
 
-const apiClient = new ApiClient<Product>("/products/:id");
+
+const apiClient = new ApiClient<Product>("/products/");
 
 const useProduct = (productId: string) =>
   useQuery<Product, Error>({
