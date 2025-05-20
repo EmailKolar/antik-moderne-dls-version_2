@@ -79,4 +79,18 @@ export class ProductController {
       }
     }
   }
+  async getAllCategories(_: Request, res: Response) {
+    console.log('Fetching all categories in controller');
+    try {
+      const categories = await this.productService.getAllCategories();
+      res.json(categories);
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error('Error fetching categories:', e);
+        res.status(404).json({ error: e.message });
+      } else {
+        res.status(500).json({ error: 'An unknown error occurred' });
+      }
+    }
+  }
 }

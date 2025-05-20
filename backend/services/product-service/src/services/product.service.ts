@@ -31,4 +31,10 @@ export class ProductService {
 
     return product.price;
   }
+  async getAllCategories() {
+    console.log('Fetching all categories in service');
+    const products = await this.getAllProducts();
+    const categories = new Set(products.map((product) => product.category));
+    return Array.from(categories);
+  }
 }

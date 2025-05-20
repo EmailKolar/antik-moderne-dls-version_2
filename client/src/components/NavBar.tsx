@@ -35,16 +35,18 @@ const NavBar = () => {
           {basketCount > 0 && (
             <Box
               position="absolute"
-              top="0"
-              right="0"
+              top="-2px"
+              right="-2px"
               bg="red.400"
               color="white"
               borderRadius="full"
               fontSize="xs"
-              px={2}
+              px={1.5}
               py={0.5}
-              minW="20px"
+              minW="18px"
               textAlign="center"
+              lineHeight="1"
+              zIndex={1}
             >
               {basketCount}
             </Box>
