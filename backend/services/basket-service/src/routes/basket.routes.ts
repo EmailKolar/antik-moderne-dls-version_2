@@ -24,4 +24,16 @@ router.get('/baskets/:basketId', BasketController.getBasket);
 // Checkout a basket
 router.post('/baskets/:basketId/checkout', BasketController.checkoutBasket);
 
+// Add or get a basket for a user (idempotent)
+router.post('/basket', BasketController.addOrGetUserBasket);
+
+// Add an item to a user's basket (idempotent)
+router.post('/basket/item', BasketController.addItemToUserBasket);
+
+// Get a user's basket by userId
+router.get('/basket', BasketController.getUserBasket);
+
+// Clear a user's basket
+router.delete('/basket', BasketController.clearUserBasket);
+
 export default router;

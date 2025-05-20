@@ -13,6 +13,16 @@ app.use(cors());
 app.use(express.json());
 app.use('/orders', orderRoutes);
 
+import client from 'prom-client';
+
+// Prometheus metrics endpoint
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 const PORT = process.env.PORT || 3005;
 
 const start = async () => {

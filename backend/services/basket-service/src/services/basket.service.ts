@@ -2,16 +2,12 @@ import prisma from '../config/database';
 import RabbitMQService from './rabbitmq.service';
 
 class BasketService {
-  // Create a new basket
+  // Create a new basket and include items (empty array)
   async createBasket(userId: string) {
-    const basket = await prisma.basket.create({
+    return prisma.basket.create({
       data: { userId },
+      include: { items: true },
     });
-
-    // Publish a message to RabbitMQ
-    await RabbitMQService.publish('basket.created', { basket });
-
-    return basket;
   }
 
   // Add an item to a basket
@@ -86,6 +82,33 @@ class BasketService {
     await RabbitMQService.publish('basket.checked_out',  {basket });
 
     return basket;
+  }
+
+  // Find a basket by userId
+  async findBasketByUserId(userId: string) {
+    return prisma.basket.findFirst({
+      where: { userId },
+      include: { items: true },
+    });
+  }
+
+  // Add or update an item in a basket (idempotent)
+  async addOrUpdateItem(basketId: string, productId: string, quantity: number, idempotencyKey?: string) {
+    // Optionally, you can store idempotencyKey in a table for true idempotency
+    // For now, just upsert the item
+    const existingItem = await prisma.basketItem.findFirst({
+      where: { basketId, productId },
+    });
+    if (existingItem) {
+      return prisma.basketItem.update({
+        where: { id: existingItem.id },
+        data: { quantity },
+      });
+    } else {
+      return prisma.basketItem.create({
+        data: { basketId, productId, quantity },
+      });
+    }
   }
 }
 

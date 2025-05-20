@@ -4,11 +4,23 @@ import RabbitMQService from './services/rabbitmq.service';
 import EmailService from './services/email.service';
 import routes from './routes/email.routes';
 
+
+
 const app = express();
 const PORT = process.env.PORT || 3004;
 
 app.use(express.json());
 app.use('/api', routes);
+
+import client from 'prom-client';
+
+// Prometheus metrics endpoint
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 const startServer = async () => {
   try {

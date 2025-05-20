@@ -13,8 +13,8 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Expose port 5000
-EXPOSE 3000
+# Expose port for Vite dev server
+EXPOSE 5173
 
-# Command to run the application
+# Command to run the application on Vite's default port
 CMD ["npm", "run", "dev"]
