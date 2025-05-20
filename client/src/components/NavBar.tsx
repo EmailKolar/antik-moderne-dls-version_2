@@ -5,13 +5,20 @@ import SearchInput from "./SearchInput";
 import logo from "../assets/Antikmoderne.png";
 import { Link } from "react-router-dom";
 
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { useBasketStore } from "../domain/Basket/useBasketStore";
+import { useEffect } from "react";
 
 
 const NavBar = () => {
-  const { items } = useBasketStore();
+  const { items, fetchBasket } = useBasketStore();
+  const { user } = useUser();
   const basketCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    if (user) fetchBasket(user.id);
+  }, [user, fetchBasket]);
+
   return (
     <HStack padding="10px">
       <Link to="/">

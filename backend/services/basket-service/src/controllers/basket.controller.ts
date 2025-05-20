@@ -88,6 +88,70 @@ class BasketController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  // Add or get a basket for a user (idempotent)
+  async addOrGetUserBasket(req: Request, res: Response) {
+    try {
+      const userId = typeof req.body.userId === 'string' ? req.body.userId : req.body.userId?.toString();
+      if (!userId) return res.status(400).json({ error: 'userId is required' });
+      let basket = await BasketService.findBasketByUserId(userId);
+      if (!basket) {
+        basket = await BasketService.createBasket(userId);
+      }
+      res.status(200).json(basket);
+    } catch (error) {
+      const err = error as Error;
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  // Add an item to a user's basket (idempotent)
+  async addItemToUserBasket(req: Request, res: Response) {
+    try {
+      const userId = typeof req.body.userId === 'string' ? req.body.userId : req.body.userId?.toString();
+      const productId = typeof req.body.productId === 'string' ? req.body.productId : req.body.productId?.toString();
+      const quantity = Number(req.body.quantity);
+      if (!userId || !productId || !quantity) return res.status(400).json({ error: 'userId, productId, and quantity are required' });
+      let basket = await BasketService.findBasketByUserId(userId);
+      if (!basket) {
+        basket = await BasketService.createBasket(userId);
+      }
+      const item = await BasketService.addOrUpdateItem(basket.id, productId, quantity, req.headers["idempotency-key"] as string);
+      res.status(201).json(item);
+    } catch (error) {
+      const err = error as Error;
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  // Get a user's basket by userId
+  async getUserBasket(req: Request, res: Response) {
+    try {
+      const userId = typeof req.query.userId === 'string' ? req.query.userId : req.query.userId?.toString();
+      if (!userId) return res.status(400).json({ error: 'userId is required' });
+      const basket = await BasketService.findBasketByUserId(userId);
+      if (!basket) return res.status(404).json({ error: 'Basket not found' });
+      res.status(200).json(basket);
+    } catch (error) {
+      const err = error as Error;
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  // Clear a user's basket
+  async clearUserBasket(req: Request, res: Response) {
+    try {
+      const userId = typeof req.body.userId === 'string' ? req.body.userId : req.body.userId?.toString();
+      if (!userId) return res.status(400).json({ error: 'userId is required' });
+      const basket = await BasketService.findBasketByUserId(userId);
+      if (!basket) return res.status(404).json({ error: 'Basket not found' });
+      await BasketService.clearBasket(basket.id);
+      res.status(200).json({ message: 'Basket cleared' });
+    } catch (error) {
+      const err = error as Error;
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 export default new BasketController();
