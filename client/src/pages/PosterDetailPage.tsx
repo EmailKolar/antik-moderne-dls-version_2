@@ -2,12 +2,16 @@ import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, 
 import { useParams } from "react-router-dom";
 import useProduct from "../domain/Product-domain/useProduct";
 import ProductAttributes from "../domain/Product-domain/ProductAttributes";
+import { useBasketStore } from "../domain/Basket/useBasketStore";
+import { useUser } from "@clerk/clerk-react";
 
 const PosterDetailPage = () => {
   const { id } = useParams();
   const { data: product, error, isLoading } = useProduct(id);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const { user } = useUser();
+  const addToBasket = useBasketStore((state) => state.addToBasket);
 
   if (!id) return <Spinner />;
   if (isLoading) return <Spinner />;
@@ -16,13 +20,16 @@ const PosterDetailPage = () => {
   const imageUrl = product.imageUrl !== "" ? product.imageUrl : "https://placehold.co/600x400";
 
   const handleAddToBasket = () => {
-    toast({
-      title: "Added to basket",
-      description: `${product.name} was added to your basket.`,
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+    if (user && product) {
+      addToBasket(user.id, { productId: product.id, quantity: 1 });
+      toast({
+        title: "Added to basket",
+        description: `${product.name} was added to your basket.`,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
