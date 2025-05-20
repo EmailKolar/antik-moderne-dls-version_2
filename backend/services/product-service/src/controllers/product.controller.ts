@@ -22,6 +22,34 @@ export class ProductController {
     const products = await this.productService.getAllProducts();
     res.json(products);
   }
+  async getProductById(req: Request, res: Response) {
+    const { productId } = req.params;
+
+    try {
+      const product = await this.productService.getProductById(productId);
+      res.json(product);
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(404).json({ error: e.message });
+      } else {
+        res.status(500).json({ error: 'An unknown error occurred' });
+      }
+    }
+  }
+  async getProductsByCategory(req: Request, res: Response) {
+    const { category } = req.params;
+    try {
+      const products = await this.productService.getAllProducts();
+      const filteredProducts = products.filter((product) => product.category === category);
+      res.json(filteredProducts);
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(404).json({ error: e.message });
+      } else {
+        res.status(500).json({ error: 'An unknown error occurred' });
+      }
+    }
+  }
 
   async createProduct(req: Request, res: Response) {
     try {
