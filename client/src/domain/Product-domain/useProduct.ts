@@ -6,11 +6,11 @@ import { Product } from "./Product";
 
 const apiClient = new ApiClient<Product>("/products/");
 
-const useProduct = (productId: string) =>
-  useQuery<Product, Error>({
-    queryKey: ["product", productId],
-    queryFn: () => apiClient.get(productId),
-    staleTime: Infinity,
-  });
+const useProduct = (id?: string) =>
+  useQuery<Product, Error>(
+    ["product", id],
+    () => apiClient.get(id!),
+    { enabled: !!id }
+  );
 
 export default useProduct;

@@ -2,6 +2,7 @@ import { HStack,  Image } from "@chakra-ui/react";
 import ColorModeSwitch from "./ColorModeSwitch";
 import SearchInput from "./SearchInput";
 import logo from "../assets/Antikmoderne.png";
+import { Link } from "react-router-dom";
 
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
@@ -17,6 +18,7 @@ const NavBar = () => {
       <SignedIn>
         <UserButton />
       </SignedIn>
+      <Link to="/basket">Basket</Link>
       <ColorModeSwitch/>
     </HStack>
   );

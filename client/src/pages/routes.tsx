@@ -3,6 +3,8 @@ import Layout from "./Layout";
 import PosterDetailPage from "./PosterDetailPage";
 import HomePage from "./HomePage";
 import ErrorPage from "./ErrorPage";
+import BasketPage from "./BasketPage";
+
 
 const router = createBrowserRouter([{
 
@@ -12,6 +14,8 @@ const router = createBrowserRouter([{
     children: [
       {path: "/", element: <HomePage/>},
       {path: "/products/:id", element: <PosterDetailPage/>},
+      {path: "/basket", element: <BasketPage/>},
+      
     ]
 
 
