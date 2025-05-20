@@ -16,6 +16,16 @@ app.use(express.json());
 app.use('/products', productRoutes);
 app.get('/', (_req, res) => res.send('Product Service Running'));
 
+import client from 'prom-client';
+
+// Prometheus metrics endpoint
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 const start = async () => {
   try {
     await prisma.$connect();
