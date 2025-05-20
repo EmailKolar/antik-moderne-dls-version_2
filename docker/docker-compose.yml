@@ -76,6 +76,18 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
+  
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
 
   # 🧩 Microservices
 
@@ -208,3 +220,5 @@ volumes:
   order-db-data:
   email-db-data:
   grafana-data:
+  minio-data:
+

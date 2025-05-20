@@ -30,7 +30,9 @@ const start = async () => {
   try {
     await prisma.$connect();
     const rabbitMQUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
+    
     await connectRabbitMQ(rabbitMQUrl);
+    console.log('Connected to RabbitMQ');
     await RabbitMQService.startOrderListener();
 
     app.listen(PORT, () => {
