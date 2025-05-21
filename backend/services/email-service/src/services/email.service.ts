@@ -16,13 +16,32 @@ const mg = mailgun.client({
 class EmailService {
   // Send an email
   async sendEmail(to: string, subject: string, body: string, eventType: string) {
+
+    // template validation
+
+    let finalSubject = subject;
+    let finalBody = body;
+
+    if (eventType === 'SIGN_UP') {
+    finalSubject = 'Welcome to Antik Moderne DLS!';
+    finalBody = `Hello, thank you for signing up!`;
+  } else if (eventType === 'CHECKOUT') {
+    finalSubject = 'Your Order Confirmation';
+    finalBody = 'Thank you for your order!';
+  } else {
+    finalSubject = 'Other Subject';
+    finalBody = 'Other Body';
+  }
+
+  console.log('Sending email:', finalSubject, finalBody);
+
     // Create an email record in the database
     const email = await prisma.email.create({
       data: {
         to,
-        subject,
-        body,
-        eventType: EmailEventType.CHECKOUT,
+        subject: finalSubject,
+        body: finalBody,
+        eventType: eventType as EmailEventType,
         status: 'PENDING',
       },
     });
@@ -35,9 +54,9 @@ class EmailService {
         process.env.MAILGUN_DOMAIN || "sandbox3d9f355d39f34feea98417e0364cf748.mailgun.org",
         {
           from: "Mailgun Sandbox <postmaster@sandbox3d9f355d39f34feea98417e0364cf748.mailgun.org>",
-          to: [to],     
-          subject,       
-          text: body,    
+          to: [to],
+          subject: finalSubject,
+          text: finalBody,
         }
       );
 
