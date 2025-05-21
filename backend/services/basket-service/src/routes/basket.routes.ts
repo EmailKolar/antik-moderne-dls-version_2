@@ -36,4 +36,7 @@ router.get('/basket', BasketController.getUserBasket);
 // Clear a user's basket
 router.delete('/basket', BasketController.clearUserBasket);
 
+// remove an item from a user's basket
+router.delete('/basket/item', BasketController.removeItemFromUserBasket);
+
 export default router;

@@ -17,7 +17,7 @@ const PLACEHOLDER_IMAGE = "https://placehold.co/64x64";
 
 const BasketPage = () => {
   const { user } = useUser();
-  const { items, fetchBasket, clearBasket , updateQuantity} = useBasketStore();
+  const { items, fetchBasket, clearBasket , updateQuantity, removeItem} = useBasketStore();
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(false);
 
@@ -82,7 +82,14 @@ const BasketPage = () => {
                     {product?.name || "Unknown product"}
                   </Text>
                 </Link>
-                <Button size="sm" onClick={() => updateQuantity(user.id, item.productId, item.quantity - 1)} disabled={item.quantity <= 1}>-</Button>
+               <Button
+  size="sm"
+  onClick={() =>
+    item.quantity <= 1
+      ? removeItem(user.id, item.productId)
+      : updateQuantity(user.id, item.productId, item.quantity - 1)
+  }
+>-</Button>
                 <Text color="gray.500" minW="24px" textAlign="center">x {item.quantity}</Text>
                 <Button size="sm" onClick={() => updateQuantity(user.id, item.productId, item.quantity + 1)}>+</Button>
               </HStack>
