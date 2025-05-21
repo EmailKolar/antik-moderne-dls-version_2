@@ -14,6 +14,7 @@ interface BasketState {
   fetchBasket: (userId: string) => Promise<void>;
   addToBasket: (userId: string, item: BasketItem) => Promise<void>;
   clearBasket: (userId: string) => Promise<void>;
+  updateQuantity: (userId: string, productId: string, quantity: number) => Promise<void>;
 }
 
 // Create a custom axios instance for the basket API
@@ -40,5 +41,10 @@ addToBasket: async (userId, item) => {
 clearBasket: async (userId) => {
   await basketApi.delete("/api/basket", { data: { userId } });
   set({ items: [] });
+},
+updateQuantity: async (userId: string, productId: string, quantity: number) => {
+  console.log("Updating quantity for product:", productId, "to", quantity, "for user:", userId);
+  await basketApi.post("/api/basket/item", { userId, productId, quantity });
+  await get().fetchBasket(userId);
 },
 }));
