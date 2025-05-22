@@ -4,7 +4,7 @@ import { useState } from "react";
 import CategorySidebar from "../domain/Category/CategorySidebar";
 import ProductGrid from "../domain/Product-domain/ProductGrid";
 import useCategory from "../domain/Category/useCategory";
-import TestSocket from "./TestSocket";
+
 
 
 function HomePage() {

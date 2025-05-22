@@ -74,4 +74,10 @@ export class OrderService {
       data: { status },
     });
   }
+  async getOrderById(orderId: string) {
+    return prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+  }
 }

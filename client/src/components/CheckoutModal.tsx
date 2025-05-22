@@ -2,9 +2,9 @@ import {
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
   Button, List, ListItem, Text, useToast, Spinner
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { io, Socket } from "socket.io-client";
+import axios from "axios";
 
 interface Product {
   id: string;
@@ -33,7 +33,6 @@ const CheckoutModal = ({
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const { user } = useUser();
-  const socketRef = useRef<Socket | null>(null);
 
   const handleCheckout = async () => {
     setIsCheckingOut(true);
@@ -41,39 +40,42 @@ const CheckoutModal = ({
       const res = await checkoutBasket(basketId); // Should return { orderId }
       setOrderId(res.orderId);
 
-      // Use Socket.IO client
-      socketRef.current = io("ws://localhost:3007", {
-        query: { userId: user?.id }
-      });
-
-      socketRef.current.on("connect", () => {
-        socketRef.current?.emit("subscribe", { orderId: res.orderId });
-        console.log("✅ Connected to ws server!");
-      });
-
-      socketRef.current.on("order-update", (data) => {
-        if (data.type === "order-confirmed") {
-          toast({
-            title: "Order confirmed!",
-            description: "Your order is ready for pickup.",
-            status: "success",
-            duration: 4000,
-            isClosable: true,
-          });
-          socketRef.current?.disconnect();
-          onClose();
-        } else if (data.type === "order-rejected") {
-          toast({
-            title: "Order rejected",
-            description: data.reason || "Some items may be out of stock.",
-            status: "error",
-            duration: 4000,
-            isClosable: true,
-          });
-          socketRef.current?.disconnect();
-          onClose();
+      // Start polling for order status
+      const poll = async () => {
+        if (!user || !res.orderId) {
+          console.error("User or orderId is not defined", user, res.orderId);
+          return;
         }
-      });
+        try {
+          const statusRes =await axios.get(`${import.meta.env.VITE_API_URL}3005/orders/${user.id}/${res.orderId}`);
+          const status = statusRes.data.status;
+          // Accept both string and enum values
+          if (status === "confirmed" || status === "CONFIRMED") {
+            toast({
+              title: "Order confirmed!",
+              description: "Your order is ready for pickup.",
+              status: "success",
+              duration: 4000,
+              isClosable: true,
+            });
+            onClose();
+          } else if (status === "rejected" || status === "REJECTED" || status === "cancelled" || status === "CANCELLED") {
+            toast({
+              title: "Order rejected",
+              description: statusRes.data.reason || "Some items may be out of stock.",
+              status: "error",
+              duration: 4000,
+              isClosable: true,
+            });
+            onClose();
+          } else {
+            setTimeout(poll, 2000);
+          }
+        } catch (e) {
+          setTimeout(poll, 2000);
+        }
+      };
+      poll();
     } catch (error: any) {
       toast({
         title: "Checkout failed",

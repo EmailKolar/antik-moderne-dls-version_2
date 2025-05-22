@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import prisma from '../config/database';
 import { OrderStatus } from '@prisma/client';
 import { OrderService } from './order.service';
-import { notifyUser } from '../ws';
 
 dotenv.config();
 
@@ -56,12 +55,7 @@ class RabbitMQService {
         });
 
         // Notify the user about the order confirmation
-        console.log('Notifying user about order confirmation:', message.userId);
-        notifyUser(message.userId, {
-          type: 'order-confirmed',
-          orderId,
-          items,
-        });
+    
 
         console.log(`Order ${orderId} has been confirmed.`);
         await this.publishEvent('email.orderConfirmed', {
@@ -86,11 +80,7 @@ class RabbitMQService {
           where: { id: orderId },
           data: { status: OrderStatus.CANCELLED },
         });
-        notifyUser(message.userId, {
-          type: 'order-rejected',
-          orderId,
-          reason,
-        });
+
 
         console.log(`Order ${orderId} has been rejected. Reason: ${reason}`);
         this.channel!.ack(msg);

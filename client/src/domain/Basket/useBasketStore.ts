@@ -56,11 +56,10 @@ removeItem: async (userId: string, productId: string) => {
 },
 
 checkoutBasket: async (basketId: string) => {
-  
-
   const res = await basketApi.post(`/api/baskets/${basketId}/checkout`);
   set({ items: [] });
-  return {orderId: res.data.orderId};
+  console.log("Checkout response:", res.data);
+  return {orderId: res.data};
 }
 
 }));
