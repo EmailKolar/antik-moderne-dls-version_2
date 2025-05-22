@@ -2,38 +2,72 @@ import { EmailEventType } from '@prisma/client';
 import { EmailStatus } from '@prisma/client';
 import prisma from '../config/database';
 import RabbitMQService from './rabbitmq.service';
+import FormData from 'form-data';
+import Mailgun from 'mailgun.js';
 
+
+const mailgun = new Mailgun(FormData);
+const mg = mailgun.client({
+  username: 'api',
+  key: process.env.MAILGUN_API_KEY || '',
+});
 
 
 class EmailService {
   // Send an email
   async sendEmail(to: string, subject: string, body: string, eventType: string) {
+
+    // template validation
+
+    let finalSubject = subject;
+    let finalBody = body;
+
+    if (eventType === 'SIGN_UP') {
+    finalSubject = 'Welcome to Antik Moderne DLS!';
+    finalBody = `Hello, thank you for signing up!`;
+  } else if (eventType === 'CHECKOUT') {
+    finalSubject = 'Your Order Confirmation';
+    finalBody = 'Thank you for your order!';
+  } else {
+    finalSubject = 'Other Subject';
+    finalBody = 'Other Body';
+  }
+
+  console.log('Sending email:', finalSubject, finalBody);
+
     // Create an email record in the database
     const email = await prisma.email.create({
       data: {
         to,
-        subject,
-        body,
-        eventType: EmailEventType.CHECKOUT,
+        subject: finalSubject,
+        body: finalBody,
+        eventType: eventType as EmailEventType,
         status: 'PENDING',
       },
     });
-  
+
 
     try {
-      // Simulate sending the email (replace with actual email-sending logic)
-      console.log(`Sending email to ${to} with subject "${subject}"`);
 
-     
+      // Send the email using Mailgun
+      await mg.messages.create(
+        process.env.MAILGUN_DOMAIN || "sandbox3d9f355d39f34feea98417e0364cf748.mailgun.org",
+        {
+          from: "Mailgun Sandbox <postmaster@sandbox3d9f355d39f34feea98417e0364cf748.mailgun.org>",
+          to: [to],
+          subject: finalSubject,
+          text: finalBody,
+        }
+      );
 
-      
+
       // Update the email status to SENT
       const updatedEmail = await prisma.email.update({
         where: { id: email.id },
         data: { status: 'SENT', sentAt: new Date() },
       });
 
-     // Publish a message to RabbitMQ
+      // Publish a message to RabbitMQ
       await RabbitMQService.publish('email.sent', {
         id: updatedEmail.id,
         to: updatedEmail.to,
@@ -41,10 +75,11 @@ class EmailService {
         eventType: updatedEmail.eventType,
         status: updatedEmail.status,
         sentAt: updatedEmail.sentAt,
-      }); 
+      });
 
       return updatedEmail;
     } catch (error) {
+      console.error('Mailgun error:', error);
       // Update the email status to FAILED
       await prisma.email.update({
         where: { id: email.id },
@@ -71,15 +106,15 @@ class EmailService {
     });
   }
 
-/*   // Get all emails (with optional filters)
-  async getAllEmails(status?: string, eventType?: string) {
-    return prisma.email.findMany({
-      where: {
-        status: status || undefined,
-        eventType: eventType || undefined,
-      },
-    });
-  } */
+  /*   // Get all emails (with optional filters)
+    async getAllEmails(status?: string, eventType?: string) {
+      return prisma.email.findMany({
+        where: {
+          status: status || undefined,
+          eventType: eventType || undefined,
+        },
+      });
+    } */
 
   // Resend a failed email
   async resendEmail(id: string) {

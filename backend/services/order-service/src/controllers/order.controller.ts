@@ -11,8 +11,8 @@ export class OrderController {
 
   async createOrder(req: Request, res: Response) {
     try {
-      const { userId, items } = req.body;
-      const order = await this.orderService.createOrder(userId, items);
+      const { orderId, userId, items } = req.body;
+      const order = await this.orderService.createOrder(orderId,userId, items);
 
       await RabbitMQService.publishEvent('order.created', {
         orderId: order.id,
@@ -36,4 +36,15 @@ export class OrderController {
       res.status(400).json({ error: (error as Error).message });
     }
   }
+  async getOrderById(req: Request, res: Response) {
+    try {
+      const { orderId } = req.params;
+      const order = await this.orderService.getOrderById(orderId);
+      res.json(order);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+    }
+  }
+
+  
 }

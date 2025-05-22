@@ -3,10 +3,11 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { UserResource } from "@clerk/types";
 
+
 interface BasketItem {
   productId: string;
   quantity: number;
-  // Add other fields as needed
+  basketId: string;
 }
 
 interface BasketState {
@@ -14,6 +15,9 @@ interface BasketState {
   fetchBasket: (userId: string) => Promise<void>;
   addToBasket: (userId: string, item: BasketItem) => Promise<void>;
   clearBasket: (userId: string) => Promise<void>;
+  updateQuantity: (userId: string, productId: string, quantity: number) => Promise<void>;
+  removeItem: (userId: string, productId: string) => Promise<void>;
+  checkoutBasket: (basketId: string) => Promise<any>;
 }
 
 // Create a custom axios instance for the basket API
@@ -41,4 +45,21 @@ clearBasket: async (userId) => {
   await basketApi.delete("/api/basket", { data: { userId } });
   set({ items: [] });
 },
+updateQuantity: async (userId: string, productId: string, quantity: number) => {
+  console.log("Updating quantity for product:", productId, "to", quantity, "for user:", userId);
+  await basketApi.post("/api/basket/item", { userId, productId, quantity });
+  await get().fetchBasket(userId);
+},
+removeItem: async (userId: string, productId: string) => {
+  await basketApi.delete("/api/basket/item", { data: { userId, productId } });
+  await get().fetchBasket(userId);
+},
+
+checkoutBasket: async (basketId: string) => {
+  const res = await basketApi.post(`/api/baskets/${basketId}/checkout`);
+  set({ items: [] });
+  console.log("Checkout response:", res.data);
+  return {orderId: res.data};
+}
+
 }));

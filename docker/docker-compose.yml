@@ -110,6 +110,8 @@ services:
       VITE_API_URL: "http://localhost:"
       VITE_API_PORT_PRODUCT: 3002
       VITE_API_PORT_BASKET: 3003
+    
+
 
 
 

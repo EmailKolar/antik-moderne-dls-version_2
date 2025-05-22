@@ -42,14 +42,16 @@ class BasketController {
   // Remove an item from a basket
   async removeItemFromBasket(req: Request, res: Response) {
     try {
-      const { basketId, productId } = req.params;
-      const deletedItem = await BasketService.removeItem(basketId, productId);
-      res.status(200).json(deletedItem);
+      const { basketId } = req.params;
+      const { productId } = req.body;
+      const removedItem = await BasketService.removeItem(basketId, productId);
+      res.status(200).json(removedItem);
     } catch (error) {
       const err = error as Error; 
       res.status(500).json({ error: err.message });
     }
   }
+  
 
   // Clear all items from a basket
   async clearBasket(req: Request, res: Response) {
@@ -147,6 +149,21 @@ class BasketController {
       if (!basket) return res.status(404).json({ error: 'Basket not found' });
       await BasketService.clearBasket(basket.id);
       res.status(200).json({ message: 'Basket cleared' });
+    } catch (error) {
+      const err = error as Error;
+      res.status(500).json({ error: err.message });
+    }
+  }
+  //remove an item from a user's basket
+  async removeItemFromUserBasket(req: Request, res: Response) {
+    try {
+      const userId = typeof req.body.userId === 'string' ? req.body.userId : req.body.userId?.toString();
+      const productId = typeof req.body.productId === 'string' ? req.body.productId : req.body.productId?.toString();
+      if (!userId || !productId) return res.status(400).json({ error: 'userId and productId are required' });
+      const basket = await BasketService.findBasketByUserId(userId);
+      if (!basket) return res.status(404).json({ error: 'Basket not found' });
+      await BasketService.removeItem(basket.id, productId);
+      res.status(200).json({ message: 'Item removed from basket' });
     } catch (error) {
       const err = error as Error;
       res.status(500).json({ error: err.message });

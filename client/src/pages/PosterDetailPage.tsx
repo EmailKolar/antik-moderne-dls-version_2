@@ -1,5 +1,5 @@
-import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, Button, useToast } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, Button, useToast, Link} from "@chakra-ui/react";
+import { useParams, useNavigate} from "react-router-dom";
 import useProduct from "../domain/Product-domain/useProduct";
 import ProductAttributes from "../domain/Product-domain/ProductAttributes";
 import { useBasketStore } from "../domain/Basket/useBasketStore";
@@ -12,6 +12,8 @@ const PosterDetailPage = () => {
   const toast = useToast();
   const { user } = useUser();
   const addToBasket = useBasketStore((state) => state.addToBasket);
+  const navigate = useNavigate();
+  const basketId = useBasketStore((state) => state.items[0]?.basketId);
 
   if (!id) return <Spinner />;
   if (isLoading) return <Spinner />;
@@ -20,8 +22,18 @@ const PosterDetailPage = () => {
   const imageUrl = product.imageUrl !== "" ? product.imageUrl : "https://placehold.co/600x400";
 
   const handleAddToBasket = () => {
+      if (!user) {
+    toast({
+      title: "Please sign in",
+      description: "You must be signed in to add items to your basket.",
+      status: "warning",
+      duration: 3000,
+      isClosable: true,
+    });
+    return;
+  }
     if (user && product) {
-      addToBasket(user.id, { productId: product.id, quantity: 1 });
+      addToBasket(user.id, { productId: product.id, quantity: 1 , basketId: basketId });
       toast({
         title: "Added to basket",
         description: `${product.name} was added to your basket.`,
@@ -53,6 +65,17 @@ const PosterDetailPage = () => {
       <Button colorScheme="teal" size="lg" mb={6} onClick={handleAddToBasket}>
         Add to Basket
       </Button>
+      <Button
+          marginLeft={1}
+          mb={6} 
+          colorScheme="gray"
+          size="lg"
+          variant="outline"
+          onClick={() => navigate("/basket")}
+        >
+          Go to Basket
+      </Button>
+     
       <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
         <ModalOverlay />
         <ModalContent bg="transparent" boxShadow="none" maxW="90vw" maxH="90vh">

@@ -36,6 +36,19 @@ class RabbitMQService {
         'ORDER_CONFIRMED'
       );
     });
+
+    // Consume user signup emails
+  await this.consume('user.signup', async (message) => {
+    console.log('Processing user.signup event:', message);
+
+    const { to, username } = message;
+    await EmailService.sendEmail(
+      to,
+      'Welcome to Antik Moderne DLS!',
+      `Hello ${username}, thank you for signing up!`,
+      'SIGNUP'
+    );
+  });
   }
 }
 

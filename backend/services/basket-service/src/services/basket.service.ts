@@ -1,5 +1,6 @@
 import prisma from '../config/database';
 import RabbitMQService from './rabbitmq.service';
+import { v4 as uuidv4 } from 'uuid';
 
 class BasketService {
   // Create a new basket and include items (empty array)
@@ -76,13 +77,19 @@ class BasketService {
     if (!basket) {
       throw new Error('Basket not found');
     }
+    const orderId = uuidv4(); // Generate a unique order ID
 
-    console.log('Basket checked out!!!!!!!!!!!!!:', basket);
+    console.log('Basket checked out!:', basket);
     // Publish a message to RabbitMQ
-    await RabbitMQService.publish('basket.checked_out',  {basket });
+    await RabbitMQService.publish('basket.checked_out',  {
+      orderId,
+      userId: basket.userId,
+      items: basket.items,
+    });
 
-    return basket;
+    return orderId;
   }
+
 
   // Find a basket by userId
   async findBasketByUserId(userId: string) {
