@@ -13,6 +13,7 @@ const PosterDetailPage = () => {
   const { user } = useUser();
   const addToBasket = useBasketStore((state) => state.addToBasket);
   const navigate = useNavigate();
+  const basketId = useBasketStore((state) => state.items[0]?.basketId);
 
   if (!id) return <Spinner />;
   if (isLoading) return <Spinner />;
@@ -32,7 +33,7 @@ const PosterDetailPage = () => {
     return;
   }
     if (user && product) {
-      addToBasket(user.id, { productId: product.id, quantity: 1 });
+      addToBasket(user.id, { productId: product.id, quantity: 1 , basketId: basketId });
       toast({
         title: "Added to basket",
         description: `${product.name} was added to your basket.`,

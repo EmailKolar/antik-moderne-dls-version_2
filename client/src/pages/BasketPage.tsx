@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useBasketStore } from "../domain/Basket/useBasketStore";
 import axios from "axios";
 import {Link} from "react-router-dom";
-
+import CheckoutModal from "../components/CheckoutModal";
+import { useDisclosure } from "@chakra-ui/react";
 
 
 interface Product {
@@ -20,6 +21,12 @@ const BasketPage = () => {
   const { items, fetchBasket, clearBasket , updateQuantity, removeItem} = useBasketStore();
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(false);
+
+const { isOpen, onOpen, onClose } = useDisclosure();
+// ...other state...
+const basketId = useBasketStore((state) => state.items[0]?.basketId);
+const checkoutBasket = useBasketStore((state) => state.checkoutBasket);
+
 
   useEffect(() => {
     if (user) fetchBasket(user.id);
@@ -89,7 +96,7 @@ const BasketPage = () => {
       ? removeItem(user.id, item.productId)
       : updateQuantity(user.id, item.productId, item.quantity - 1)
   }
->-</Button>
+                >-</Button>
                 <Text color="gray.500" minW="24px" textAlign="center">x {item.quantity}</Text>
                 <Button size="sm" onClick={() => updateQuantity(user.id, item.productId, item.quantity + 1)}>+</Button>
               </HStack>
@@ -105,6 +112,23 @@ const BasketPage = () => {
       >
         Clear Basket
       </Button>
+      <Button
+  colorScheme="teal"
+  ml={3}
+  onClick={onOpen}
+  disabled={items.length === 0}
+>
+  Checkout
+</Button>
+
+<CheckoutModal
+  isOpen={isOpen}
+  onClose={onClose}
+  items={items}
+  products={products}
+  basketId={basketId}
+  checkoutBasket={checkoutBasket}
+/>
     </Box>
   );
 };

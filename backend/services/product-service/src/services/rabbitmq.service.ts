@@ -45,6 +45,7 @@ class RabbitMQService {
                 orderId: order.orderId,
                 status: "confirmed",
                 items: order.items,
+                userId: order.userId,
               })
             )
           );
@@ -60,6 +61,7 @@ class RabbitMQService {
                 status: "rejected",
                 reason,
                 items: order.items,
+                userId: order.userId,
               })
             )
           );

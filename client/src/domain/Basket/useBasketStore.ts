@@ -3,10 +3,11 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { UserResource } from "@clerk/types";
 
+
 interface BasketItem {
   productId: string;
   quantity: number;
-  // Add other fields as needed
+  basketId: string;
 }
 
 interface BasketState {
@@ -16,6 +17,7 @@ interface BasketState {
   clearBasket: (userId: string) => Promise<void>;
   updateQuantity: (userId: string, productId: string, quantity: number) => Promise<void>;
   removeItem: (userId: string, productId: string) => Promise<void>;
+  checkoutBasket: (basketId: string) => Promise<any>;
 }
 
 // Create a custom axios instance for the basket API
@@ -52,4 +54,13 @@ removeItem: async (userId: string, productId: string) => {
   await basketApi.delete("/api/basket/item", { data: { userId, productId } });
   await get().fetchBasket(userId);
 },
+
+checkoutBasket: async (basketId: string) => {
+  
+
+  const res = await basketApi.post(`/api/baskets/${basketId}/checkout`);
+  set({ items: [] });
+  return {orderId: res.data.orderId};
+}
+
 }));

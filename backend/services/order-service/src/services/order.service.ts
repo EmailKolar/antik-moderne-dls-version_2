@@ -10,7 +10,7 @@ export enum OrderStatus {
 const prisma = new PrismaClient();
 
 export class OrderService {
-  async createOrder(userId: string, items: any[]) {
+  async createOrder(orderId: string, userId: string, items: any[]) {
     console.log('Creating order with items:', items);
     if (!items || items.length === 0) {
       throw new Error('Invalid items array. It must be a non-empty array.');
@@ -43,6 +43,7 @@ export class OrderService {
 
     const order = await prisma.order.create({
       data: {
+        id: orderId,
         userId,
         totalAmount,
         status: OrderStatus.PENDING,

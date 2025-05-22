@@ -110,6 +110,17 @@ services:
       VITE_API_URL: "http://localhost:"
       VITE_API_PORT_PRODUCT: 3002
       VITE_API_PORT_BASKET: 3003
+    
+  order-ws:
+    build:
+      context: ../backend/services/order-service
+      dockerfile: ../../../docker/services/order-service.Dockerfile.ws
+    ports:
+      - "3007:3007"
+    depends_on:
+      - order-service
+    volumes:
+      - ../backend/services/order-service:/app
 
 
 

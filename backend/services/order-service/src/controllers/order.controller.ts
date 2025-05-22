@@ -11,8 +11,8 @@ export class OrderController {
 
   async createOrder(req: Request, res: Response) {
     try {
-      const { userId, items } = req.body;
-      const order = await this.orderService.createOrder(userId, items);
+      const { orderId, userId, items } = req.body;
+      const order = await this.orderService.createOrder(orderId,userId, items);
 
       await RabbitMQService.publishEvent('order.created', {
         orderId: order.id,

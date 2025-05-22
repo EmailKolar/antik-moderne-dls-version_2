@@ -4,6 +4,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import orderRoutes from './routes/order.routes';
 import RabbitMQService from './services/rabbitmq.service';
+import "./ws"; // Import WebSocket setup
 
 dotenv.config();
 const app = express();
