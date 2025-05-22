@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import orderRoutes from './routes/order.routes';
 import RabbitMQService from './services/rabbitmq.service';
 
+
 dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
