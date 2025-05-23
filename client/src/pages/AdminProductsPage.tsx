@@ -117,6 +117,7 @@ const AdminProductsPage = () => {
             <Tr>
               <Th>Image</Th>
               <Th>Name</Th>
+              <Th>Stock</Th>
               <Th>Price</Th>
               <Th>Actions</Th>
             </Tr>
@@ -126,6 +127,7 @@ const AdminProductsPage = () => {
               <Tr key={product.id}>
                 <Td><img src={product.imageUrl} alt={product.name} width={48} height={48} /></Td>
                 <Td>{product.name}</Td>
+                <Td>{product.stock}</Td>
                 <Td>${product.price?.toFixed(2)}</Td>
                 <Td>
                   <Button size="sm" mr={2} onClick={() => handleOpenEdit(product)}>Edit</Button>
