@@ -93,4 +93,33 @@ export class ProductController {
       }
     }
   }
+
+  async editProduct(req: Request, res: Response) {
+    const { productId } = req.params;
+    try {
+      const data = req.body;
+      const updated = await this.productService.editProduct(productId, data);
+      res.json(updated);
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(400).json({ error: e.message });
+      } else {
+        res.status(400).json({ error: 'An unknown error occurred' });
+      }
+    }
+  }
+
+  async deleteProduct(req: Request, res: Response) {
+    const { productId } = req.params;
+    try {
+      await this.productService.deleteProduct(productId);
+      res.status(204).send();
+    } catch (e) {
+      if (e instanceof Error) {
+        res.status(400).json({ error: e.message });
+      } else {
+        res.status(400).json({ error: 'An unknown error occurred' });
+      }
+    }
+  }
 }

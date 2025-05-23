@@ -37,4 +37,16 @@ export class ProductService {
     const categories = new Set(products.map((product) => product.category));
     return Array.from(categories);
   }
+  async editProduct(productId: string, data: any) {
+    return prisma.product.update({
+      where: { id: productId },
+      data,
+    });
+  }
+
+  async deleteProduct(productId: string) {
+    return prisma.product.delete({
+      where: { id: productId },
+    });
+  }
 }
