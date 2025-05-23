@@ -25,6 +25,14 @@ class ApiClient<T> {
 
   get = (id: number | string) =>
     axiosInstance.get<T>(this.endpoint + "/" + id).then((res) => res.data);
+  post = (data: Partial<T>) =>
+  axiosInstance.post<T>(this.endpoint, data).then((res) => res.data);
+
+put = (id: number | string, data: Partial<T>) =>
+  axiosInstance.put<T>(`${this.endpoint}/${id}`, data).then((res) => res.data);
+
+delete = (id: number | string) =>
+  axiosInstance.delete(`${this.endpoint}/${id}`).then((res) => res.data);
 }
 
 export default ApiClient;
