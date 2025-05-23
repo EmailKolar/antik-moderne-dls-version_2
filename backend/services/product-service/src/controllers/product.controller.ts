@@ -95,6 +95,7 @@ export class ProductController {
   }
 
   async editProduct(req: Request, res: Response) {
+    console.log('Editing product in controller');
     const { productId } = req.params;
     try {
       const data = req.body;

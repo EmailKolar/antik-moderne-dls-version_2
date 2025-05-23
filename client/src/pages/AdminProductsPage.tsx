@@ -54,8 +54,10 @@ const AdminProductsPage = () => {
 
   // Handle add or edit product
   const handleSaveProduct = async () => {
+    console.log("Saving product...")
     try {
       if (selectedProduct) {
+        console.log("Editing product...", selectedProduct);
         await editProduct({ ...selectedProduct, ...newProduct });
         toast({ title: "Product updated", status: "success" });
       } else {
