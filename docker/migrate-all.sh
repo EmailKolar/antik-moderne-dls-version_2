@@ -13,3 +13,7 @@ for service in "${services[@]}"; do
 done
 
 echo "All migrations completed successfully."
+
+
+# docker-compose exec product-service npx prisma migrate dev --name add-product-deleted-flag
+# docker compose exec basket-service npx prisma migrate dev --name add-idempotance

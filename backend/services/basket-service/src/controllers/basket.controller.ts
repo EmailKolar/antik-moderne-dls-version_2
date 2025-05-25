@@ -109,6 +109,7 @@ class BasketController {
 
   // Add an item to a user's basket (idempotent)
   async addItemToUserBasket(req: Request, res: Response) {
+    console.log("Adding item to user's basket:", req.body);
     try {
       const userId = typeof req.body.userId === 'string' ? req.body.userId : req.body.userId?.toString();
       const productId = typeof req.body.productId === 'string' ? req.body.productId : req.body.productId?.toString();
@@ -118,9 +119,18 @@ class BasketController {
       if (!basket) {
         basket = await BasketService.createBasket(userId);
       }
-      const item = await BasketService.addOrUpdateItem(basket.id, productId, quantity, req.headers["idempotency-key"] as string);
-      res.status(201).json(item);
+      console.log("Basket found or created:", basket);
+      // The response is now a plain object: { item, basket }
+      const response = await BasketService.addOrUpdateItem(
+        basket.id,
+        productId,
+        quantity,
+        userId, // pass userId to match new signature
+        req.headers["idempotency-key"] as string
+      );
+      res.status(201).json(response);
     } catch (error) {
+      console.error("Error adding item to user's basket:", error);
       const err = error as Error;
       res.status(500).json({ error: err.message });
     }
