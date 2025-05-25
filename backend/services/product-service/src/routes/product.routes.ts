@@ -31,7 +31,11 @@ const productController = new ProductController();
 router.get('/', productController.getAllProducts.bind(productController));
 router.get('/categories', productController.getAllCategories.bind(productController)); // <-- move this up!
 router.get('/category/:category', productController.getProductsByCategory.bind(productController));
-router.post('/', requireAuth as any, isAdmin, productController.createProduct.bind(productController));
+router.post('/', 
+   (req, res, next) => { console.log('POST / hit'); next(); },
+  ClerkExpressWithAuth(),
+  isAdmin,
+  productController.createProduct.bind(productController));
 router.put(
   '/:productId',
   (req, res, next) => { console.log('PUT /products/:productId hit'); next(); },
@@ -39,7 +43,11 @@ router.put(
   isAdmin,
   productController.editProduct.bind(productController)
 );
-router.delete('/:productId', requireAuth as any, isAdmin, productController.deleteProduct.bind(productController));
+router.delete('/:productId', 
+  (req, res, next) => { console.log('DELETE /products/:productId hit'); next(); },
+  ClerkExpressWithAuth(),
+  isAdmin,
+  productController.deleteProduct.bind(productController));
 router.get('/:productId/price', productController.getProductPrice.bind(productController));
 router.get('/:productId', productController.getProductById.bind(productController)); // <-- keep this last
 

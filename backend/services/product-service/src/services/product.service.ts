@@ -2,12 +2,13 @@ import { prisma } from '../config/database';
 
 export class ProductService {
   async getAllProducts() {
-    return prisma.product.findMany();
+    // Only return products that are not deleted
+    return prisma.product.findMany({ where: { deleted: false } });
   }
 
   async getProductById(productId: string) {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
+    const product = await prisma.product.findFirst({
+      where: { id: productId, deleted: false },
     });
 
     if (!product) {
@@ -16,13 +17,14 @@ export class ProductService {
 
     return product;
   }
+
   async createProduct(data: any) {
     return prisma.product.create({ data });
   }
 
   async getProductPrice(productId: string) {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
+    const product = await prisma.product.findFirst({
+      where: { id: productId, deleted: false },
     });
 
     if (!product) {
@@ -38,6 +40,13 @@ export class ProductService {
     return Array.from(categories);
   }
   async editProduct(productId: string, data: any) {
+    // Prevent editing deleted products
+    const product = await prisma.product.findFirst({
+      where: { id: productId, deleted: false },
+    });
+    if (!product) {
+      throw new Error('Product not found or has been deleted');
+    }
     return prisma.product.update({
       where: { id: productId },
       data,
