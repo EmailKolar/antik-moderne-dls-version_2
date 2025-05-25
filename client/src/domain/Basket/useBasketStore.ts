@@ -34,12 +34,17 @@ fetchBasket: async (userId) => {
 },
 addToBasket: async (userId, item) => {
   const idempotencyKey = uuidv4();
-  await basketApi.post(
+  const res = await basketApi.post(
     "/api/basket/item",
     { ...item, userId },
     { headers: { "Idempotency-Key": idempotencyKey } }
   );
-  await get().fetchBasket(userId);
+  // The backend now returns { item, basket }
+  if (res.data && res.data.basket && res.data.basket.items) {
+    set({ items: res.data.basket.items });
+  } else {
+    await get().fetchBasket(userId);
+  }
 },
 clearBasket: async (userId) => {
   await basketApi.delete("/api/basket", { data: { userId } });
