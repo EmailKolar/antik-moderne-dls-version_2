@@ -30,7 +30,7 @@ const ProductCard = ({ product }: Props) => {
                             {product.name}
                         </Link>
                         <span style={{ fontSize: "1.2em", color: "gray" }}>
-                            {product.price} kr
+                           $ {product.price} 
                         </span>
                     </HStack>
                 </Heading>
