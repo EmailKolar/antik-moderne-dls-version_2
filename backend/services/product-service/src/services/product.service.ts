@@ -45,8 +45,10 @@ export class ProductService {
   }
 
   async deleteProduct(productId: string) {
-    return prisma.product.delete({
+    // Tombstone: set a deleted flag instead of actually deleting
+    return prisma.product.update({
       where: { id: productId },
+      data: { deleted: true },
     });
   }
 }
