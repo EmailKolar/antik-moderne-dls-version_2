@@ -34,6 +34,8 @@ This will build and start all backend services, databases, MinIO, RabbitMQ, and 
 - Email Service: http://localhost:3004
 - MinIO: http://localhost:9000
 - RabbitMQ: http://localhost:15672
+- Grafana: http://localhost:3000
+- Prometheus: http://localhost:9090
 
 ### 3. Run database migrations
 Each service manages its own database and migrations. To run all migrations:
@@ -49,6 +51,7 @@ Some services provide a seed script to populate initial data:
 cd backend/services/product-service
 npx prisma db seed
 ```
+
 
 ## General Architecture
 - **Frontend**: React + Chakra UI, Zustand for state, React Query for data fetching, Clerk for auth.
@@ -67,6 +70,8 @@ npx prisma db seed
 ## Development Notes
 - Environment variables for each service are in their respective `.env` files.
 - For local development, you may need to restart services after changing environment variables or Prisma schema.
+
+
 
 ---
 
