@@ -25,3 +25,13 @@ model BasketItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Idempotency {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  userId     String
+  operation  String   // e.g. 'addToBasket'
+  request    Json
+  response   Json
+  createdAt  DateTime @default(now())
+}
