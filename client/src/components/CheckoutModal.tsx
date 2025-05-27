@@ -31,7 +31,7 @@ const CheckoutModal = ({
 }: CheckoutModalProps) => {
   const toast = useToast();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [, setOrderId] = useState<string | null>(null);
   const { user } = useUser();
 
   const handleCheckout = async () => {

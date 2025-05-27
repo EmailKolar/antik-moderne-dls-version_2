@@ -1,4 +1,4 @@
-import { HStack, Box, Flex } from "@chakra-ui/react";
+import { HStack, Box } from "@chakra-ui/react";
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "@chakra-ui/react";
@@ -12,7 +12,7 @@ import useCategory from "../domain/Category/useCategory";
 
 function HomePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
-  const { user, isLoaded } = useUser();
+  const { user,  } = useUser();
   const navigate = useNavigate();
   const isAdmin = user?.publicMetadata?.role === "admin";
 

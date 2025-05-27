@@ -1,4 +1,4 @@
-import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, Button, useToast, Link} from "@chakra-ui/react";
+import { Heading, Spinner, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, Button, useToast} from "@chakra-ui/react";
 import { useParams, useNavigate} from "react-router-dom";
 import useProduct from "../domain/Product-domain/useProduct";
 import ProductAttributes from "../domain/Product-domain/ProductAttributes";

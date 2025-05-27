@@ -1,0 +1,69 @@
+name: Simple CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install root dependencies
+        run: npm install || true
+      - name: Install and test basket-service
+        run: |
+          cd backend/services/basket-service
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+      - name: Install and test product-service
+        run: |
+          cd backend/services/product-service
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+      - name: Install and test user-service
+        run: |
+          cd backend/services/user-service
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+      - name: Install and test order-service
+        run: |
+          cd backend/services/order-service
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+      - name: Install and test email-service
+        run: |
+          cd backend/services/email-service
+          npm install
+          npx prisma generate
+          npx prisma migrate deploy
+      - name: Install and test client
+        run: |
+          cd client
+          npm install

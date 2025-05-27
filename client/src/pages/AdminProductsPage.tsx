@@ -1,13 +1,13 @@
 import { Box, Heading, Button, Table, Thead, Tbody, Tr, Th, Td, useToast, Spinner, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, FormLabel, FormControl } from "@chakra-ui/react";
 import { useUser } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import { useAdminProducts } from "../domain/Product-domain/useAdminProducts";
 import { useRef, useState } from "react";
 
 const AdminProductsPage = () => {
   const { user } = useUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const toast = useToast();
   const {
     products = [],
