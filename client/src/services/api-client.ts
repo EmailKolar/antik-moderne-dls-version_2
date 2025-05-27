@@ -1,14 +1,15 @@
 import axios, { AxiosRequestConfig } from "axios";
 
+// Example fix for base URL:
+// Detect if running in production (deployed) or local
+const isProd = import.meta.env.MODE === 'production' || window.location.hostname.includes('render.com');
 
-export interface Response<T> {
-  count: number;
-  next: string | null;
-  results: T[];
-}
+export const API_BASE_URL = isProd
+  ? 'https://antik-moderne-dls-version-2-mock-backend.onrender.com'
+  : `${import.meta.env.VITE_API_URL}${import.meta.env.VITE_API_PORT_PRODUCT}`;
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL+import.meta.env.VITE_API_PORT_PRODUCT,
+  baseURL: API_BASE_URL,
   // params: {
   //   key: import.meta.env.VITE_API_KEY,
   // },
