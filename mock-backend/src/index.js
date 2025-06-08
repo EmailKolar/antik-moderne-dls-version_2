@@ -27,7 +27,7 @@ const products = [
   {
     id: "prod-2",
     name: "Robin Hood Movie Poster",
-    imageUrl: `${BASE_URL}/media/Robin_Hood.jpg`,
+    imageUrl: `${BASE_URL}/media/Robin_Hood.JPG`,
     price: 149,
     category: "Movie",
     description: "A stylish modern print.",
@@ -36,7 +36,7 @@ const products = [
   {
     id: "prod-3",
     name: "Horse",
-    imageUrl: `${BASE_URL}/media/Permild&Rosengreen_Hest.jpg`,
+    imageUrl: `${BASE_URL}/media/Permild&Rosengreen_Hest.JPG`,
     price: 149,
     category: "Movie",
     description: "A stylish modern print.",
@@ -45,7 +45,7 @@ const products = [
   {
     id: "prod-4",
     name: "Mickey Mouse",
-    imageUrl: `${BASE_URL}/media/Mickery_Mouse.jpg`,
+    imageUrl: `${BASE_URL}/media/Mickey_Mouse.JPG`,
     price: 149,
     category: "Movie",
     description: "A stylish modern print.",
