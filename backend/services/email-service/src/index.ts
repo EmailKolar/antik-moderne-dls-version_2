@@ -55,6 +55,7 @@ const startServer = async () => {
   }
 
   RabbitMQService.startConsumers();
+  console.log('RabbitMQ consumers started');
 };
 
 startServer();
