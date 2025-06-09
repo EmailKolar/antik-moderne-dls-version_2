@@ -147,6 +147,7 @@ services:
     command: npm run dev
     ports:
       - "3002:3002"
+      - "5555:5555"
     depends_on:
       rabbitmq:
         condition: service_healthy
