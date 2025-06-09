@@ -37,7 +37,7 @@ class RabbitMQService {
             });
           }
 
-          // Publish 'order.confirmed'
+          // Publish 'order.confirmed' (for order-service and others)
           channel.sendToQueue(
             "order.confirmed",
             Buffer.from(
@@ -46,6 +46,18 @@ class RabbitMQService {
                 status: "confirmed",
                 items: order.items,
                 userId: order.userId,
+              })
+            )
+          );
+          // Publish 'order.confirmed.basket' (for basket-service to clear basket)
+          channel.sendToQueue(
+            "order.confirmed.basket",
+            Buffer.from(
+              JSON.stringify({
+                orderId: order.orderId,
+                userId: order.userId,
+                items: order.items,
+                status: "confirmed"
               })
             )
           );

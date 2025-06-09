@@ -30,6 +30,28 @@ const startServer = async () => {
       console.log('Received basket.created event:', message);
     });
 
+    // Listen for order.confirmed events and clear the user's basket
+    RabbitMQService.consume('order.confirmed.basket', async (message) => {
+      try {
+        console.log('Received order.confirmed event for basket:', message);
+        const userId = message.userId;
+        if (!userId) {
+          console.warn('order.confirmed event missing userId');
+          return;
+        }
+        // Find the user's basket
+        const basket = await require('./services/basket.service').default.findBasketByUserId(userId);
+        if (basket) {
+          await require('./services/basket.service').default.clearBasket(basket.id);
+          console.log(`Cleared basket for userId: ${userId}`);
+        } else {
+          console.log(`No basket found for userId: ${userId}`);
+        }
+      } catch (err) {
+        console.error('Error handling order.confirmed event in basket service:', err);
+      }
+    });
+
     // Start the server
     app.listen(PORT, () => {
       console.log(`Basket service is running on port ${PORT}`);
