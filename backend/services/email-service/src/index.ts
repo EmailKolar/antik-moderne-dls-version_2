@@ -3,8 +3,16 @@ import { connectRabbitMQ } from './config/rabbitmq';
 import RabbitMQService from './services/rabbitmq.service';
 import EmailService from './services/email.service';
 import routes from './routes/email.routes';
+import 'dotenv/config';  
+import * as Sentry from '@sentry/node';  
 
-
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  debug: true,
+});
 
 const app = express();
 const PORT = process.env.PORT || 3004;
@@ -21,6 +29,13 @@ app.get('/metrics', async (_req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
+
+// sentry test route
+app.get('/debug-sentry', (_req, _res) => {
+  throw new Error('My first Sentry error!');
+});
+
+Sentry.setupExpressErrorHandler(app);
 
 const startServer = async () => {
   try {

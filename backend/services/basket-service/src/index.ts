@@ -1,3 +1,17 @@
+import 'dotenv/config';
+
+
+// --- SENTRY SETUP MUST COME FIRST ---
+import * as Sentry from '@sentry/node';
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  debug: true,
+});
+// -------------------------------------
+
 import express from 'express';
 import { connectRabbitMQ } from './config/rabbitmq';
 import routes from './routes/basket.routes';
@@ -10,19 +24,29 @@ const PORT = process.env.PORT || 3003;
 
 app.use(cors());
 app.use(express.json());
+
+// Add your routes here
 app.use('/api', routes);
+
+// Sentry test route
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
 
 // Prometheus metrics endpoint
 client.collectDefaultMetrics();
-
 app.get('/metrics', async (_req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
 
+// --- Sentry Error Handler (must come after routes) ---
+Sentry.setupExpressErrorHandler(app);
+
+// -------------------------------------------------------
+
 const startServer = async () => {
   try {
-    // Connect to RabbitMQ
     const rabbitMQUrl = process.env.RABBITMQ_URL || 'amqp://localhost';
     await connectRabbitMQ(rabbitMQUrl);
 
@@ -30,7 +54,6 @@ const startServer = async () => {
       console.log('Received basket.created event:', message);
     });
 
-    // Listen for order.confirmed events and clear the user's basket
     RabbitMQService.consume('order.confirmed.basket', async (message) => {
       try {
         console.log('Received order.confirmed event for basket:', message);
@@ -39,20 +62,20 @@ const startServer = async () => {
           console.warn('order.confirmed event missing userId');
           return;
         }
-        // Find the user's basket
-        const basket = await require('./services/basket.service').default.findBasketByUserId(userId);
+
+        const basketService = require('./services/basket.service').default;
+        const basket = await basketService.findBasketByUserId(userId);
         if (basket) {
-          await require('./services/basket.service').default.clearBasket(basket.id);
+          await basketService.clearBasket(basket.id);
           console.log(`Cleared basket for userId: ${userId}`);
         } else {
           console.log(`No basket found for userId: ${userId}`);
         }
       } catch (err) {
-        console.error('Error handling order.confirmed event in basket service:', err);
+        console.error('Error handling order.confirmed event:', err);
       }
     });
 
-    // Start the server
     app.listen(PORT, () => {
       console.log(`Basket service is running on port ${PORT}`);
     });

@@ -1,12 +1,19 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import orderRoutes from './routes/order.routes';
 import RabbitMQService from './services/rabbitmq.service';
+import 'dotenv/config';  
+import * as Sentry from '@sentry/node';  
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  debug: true,
+});
 
-dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
@@ -23,6 +30,13 @@ app.get('/metrics', async (_req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
+
+// sentry test route
+app.get('/debug-sentry', (_req, _res) => {
+  throw new Error('My first Sentry error!');
+});
+
+Sentry.setupExpressErrorHandler(app);
 
 const PORT = process.env.PORT || 3005;
 
