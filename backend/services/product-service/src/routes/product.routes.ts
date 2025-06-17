@@ -29,7 +29,7 @@ const productController = new ProductController();
 
 
 router.get('/', productController.getAllProducts.bind(productController));
-router.get('/categories', productController.getAllCategories.bind(productController)); // <-- move this up!
+router.get('/categories', productController.getAllCategories.bind(productController)); 
 router.get('/category/:category', productController.getProductsByCategory.bind(productController));
 router.post('/', 
    (req, res, next) => { console.log('POST / hit'); next(); },
@@ -49,7 +49,7 @@ router.delete('/:productId',
   isAdmin,
   productController.deleteProduct.bind(productController));
 router.get('/:productId/price', productController.getProductPrice.bind(productController));
-router.get('/:productId', productController.getProductById.bind(productController)); // <-- keep this last
+router.get('/:productId', productController.getProductById.bind(productController)); 
 
 
 export default router;

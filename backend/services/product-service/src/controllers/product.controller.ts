@@ -18,8 +18,9 @@ export class ProductController {
     this.productService = new ProductService();
   }
 
-  async getAllProducts(_: Request, res: Response) {
-    const products = await this.productService.getAllProducts();
+  async getAllProducts(req: Request, res: Response) {
+    const search = req.query.search as string | undefined;
+    const products = await this.productService.getAllProducts(search);
     res.json(products);
   }
   async getProductById(req: Request, res: Response) {
