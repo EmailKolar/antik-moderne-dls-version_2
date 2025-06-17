@@ -16,25 +16,25 @@ app.use('/media', express.static(path.join(__dirname, '../media')));
 const BASE_URL = process.env.BASE_URL || "http://localhost:3002";
 
 // --- Product Endpoints (DB-backed) ---
+app.get('/products/categories', async (req, res) => {
+  const categories = await prisma.product.findMany({ where: { deleted: false }, select: { category: true } });
+  res.json(Array.from(new Set(categories.map(c => c.category))));
+});
+
 app.get('/products', async (req, res) => {
   const products = await prisma.product.findMany({ where: { deleted: false } });
   res.json(products.map(p => ({ ...p, imageUrl: p.imageUrl?.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}` })));
+});
+
+app.get('/products/category/:category', async (req, res) => {
+  const filtered = await prisma.product.findMany({ where: { category: req.params.category, deleted: false } });
+  res.json(filtered.map(p => ({ ...p, imageUrl: p.imageUrl?.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}` })));
 });
 
 app.get('/products/:id', async (req, res) => {
   const product = await prisma.product.findUnique({ where: { id: req.params.id } });
   if (!product || product.deleted) return res.status(404).json({ error: 'Product not found' });
   res.json({ ...product, imageUrl: product.imageUrl?.startsWith('http') ? product.imageUrl : `${BASE_URL}${product.imageUrl}` });
-});
-
-app.get('/products/categories', async (req, res) => {
-  const categories = await prisma.product.findMany({ where: { deleted: false }, select: { category: true } });
-  res.json(Array.from(new Set(categories.map(c => c.category))));
-});
-
-app.get('/products/category/:category', async (req, res) => {
-  const filtered = await prisma.product.findMany({ where: { category: req.params.category, deleted: false } });
-  res.json(filtered.map(p => ({ ...p, imageUrl: p.imageUrl?.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}` })));
 });
 
 app.get('/products/:id/price', async (req, res) => {

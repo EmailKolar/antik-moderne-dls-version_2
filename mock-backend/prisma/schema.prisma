@@ -16,6 +16,7 @@ model Product {
   price     Float
   imageUrl  String?
   stock     Int
+  category  String   // Added category field
   deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
