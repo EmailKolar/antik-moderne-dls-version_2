@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import prisma from "./prisma.ts"; 
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -13,123 +14,79 @@ app.use(cors());
 app.use(express.json());
 app.use('/media', express.static(path.join(__dirname, '../media')));
 const BASE_URL = process.env.BASE_URL || "http://localhost:3002";
-// Example static product data
-const products = [
-  {
-    id: "prod-1",
-    name: "Cirkel Kaffe Poster",
-    imageUrl: `${BASE_URL}/media/Cirkel_Kaffe.JPG`,
-    price: 199,
-    category: "Art",
-    description: "A beautiful vintage poster.",
-    deleted: false
-  },
-  {
-    id: "prod-2",
-    name: "Robin Hood Movie Poster",
-    imageUrl: `${BASE_URL}/media/Robin_Hood.JPG`,
-    price: 149,
-    category: "Movie",
-    description: "A stylish modern print.",
-    deleted: false
-  },
-  {
-    id: "prod-3",
-    name: "Horse",
-    imageUrl: `${BASE_URL}/media/Permild&Rosengreen_Hest.JPG`,
-    price: 149,
-    category: "Movie",
-    description: "A stylish modern print.",
-    deleted: false
-  },
-  {
-    id: "prod-4",
-    name: "Mickey Mouse",
-    imageUrl: `${BASE_URL}/media/Mickey_Mouse.JPG`,
-    price: 149,
-    category: "Movie",
-    description: "A stylish modern print.",
-    deleted: false
-  }
-];
 
-// --- Simple basket logic (in-memory, per user) ---
-const baskets = {};
-
-// Endpoints
-app.get('/products', (req, res) => {
-  res.json(products.filter(p => !p.deleted));
+// --- Product Endpoints (DB-backed) ---
+app.get('/products', async (req, res) => {
+  const products = await prisma.product.findMany({ where: { deleted: false } });
+  res.json(products.map(p => ({ ...p, imageUrl: p.imageUrl?.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}` })));
 });
 
-app.get('/products/:id', (req, res) => {
-  const product = products.find(p => p.id === req.params.id && !p.deleted);
-  if (!product) return res.status(404).json({ error: 'Product not found' });
-  res.json(product);
+app.get('/products/:id', async (req, res) => {
+  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  if (!product || product.deleted) return res.status(404).json({ error: 'Product not found' });
+  res.json({ ...product, imageUrl: product.imageUrl?.startsWith('http') ? product.imageUrl : `${BASE_URL}${product.imageUrl}` });
 });
 
-// Get all categories
-app.get('/products/categories', (req, res) => {
-  const categories = Array.from(new Set(products.map(p => p.category)));
-  res.json(categories);
+app.get('/products/categories', async (req, res) => {
+  const categories = await prisma.product.findMany({ where: { deleted: false }, select: { category: true } });
+  res.json(Array.from(new Set(categories.map(c => c.category))));
 });
 
-// Get products by category
-app.get('/products/category/:category', (req, res) => {
-  const filtered = products.filter(p => p.category === req.params.category && !p.deleted);
-  res.json(filtered);
+app.get('/products/category/:category', async (req, res) => {
+  const filtered = await prisma.product.findMany({ where: { category: req.params.category, deleted: false } });
+  res.json(filtered.map(p => ({ ...p, imageUrl: p.imageUrl?.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}` })));
 });
 
-// Get product price
-app.get('/products/:id/price', (req, res) => {
-  const product = products.find(p => p.id === req.params.id && !p.deleted);
-  if (!product) return res.status(404).json({ error: 'Product not found' });
+app.get('/products/:id/price', async (req, res) => {
+  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  if (!product || product.deleted) return res.status(404).json({ error: 'Product not found' });
   res.json({ price: product.price });
 });
 
-// Add or get a basket for a user (idempotent)
-app.post('/basket', (req, res) => {
+// --- Basket Endpoints (DB-backed) ---
+app.post('/basket', async (req, res) => {
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
-  if (!baskets[userId]) baskets[userId] = [];
-  res.json({ userId, items: baskets[userId] });
+  let basket = await prisma.basket.findFirst({ where: { userId }, include: { items: true } });
+  if (!basket) basket = await prisma.basket.create({ data: { userId }, include: { items: true } });
+  res.json(basket);
 });
 
-// Add an item to a user's basket
-app.post('/basket/item', (req, res) => {
+app.post('/basket/item', async (req, res) => {
   const { userId, productId, quantity } = req.body;
   if (!userId || !productId || !quantity) return res.status(400).json({ error: 'userId, productId, and quantity are required' });
-  if (!baskets[userId]) baskets[userId] = [];
-  // Upsert logic
-  const idx = baskets[userId].findIndex(item => item.productId === productId);
-  if (idx >= 0) {
-    baskets[userId][idx].quantity = quantity;
+  let basket = await prisma.basket.findFirst({ where: { userId } });
+  if (!basket) basket = await prisma.basket.create({ data: { userId } });
+  const existing = await prisma.basketItem.findFirst({ where: { basketId: basket.id, productId } });
+  if (existing) {
+    await prisma.basketItem.update({ where: { id: existing.id }, data: { quantity } });
   } else {
-    baskets[userId].push({ productId, quantity, basketId: userId + '-basket' });
+    await prisma.basketItem.create({ data: { basketId: basket.id, productId, quantity } });
   }
-  res.json({ basket: { userId, items: baskets[userId] } });
+  const updated = await prisma.basket.findUnique({ where: { id: basket.id }, include: { items: true } });
+  res.json(updated);
 });
 
-// Get a user's basket
-app.get('/basket', (req, res) => {
+app.get('/basket', async (req, res) => {
   const userId = req.query.userId;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
-  res.json({ userId, items: baskets[userId] || [] });
+  const basket = await prisma.basket.findFirst({ where: { userId: String(userId) }, include: { items: true } });
+  res.json(basket || { userId, items: [] });
 });
 
-// Clear a user's basket
-app.delete('/basket', (req, res) => {
+app.delete('/basket', async (req, res) => {
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
-  baskets[userId] = [];
+  const basket = await prisma.basket.findFirst({ where: { userId } });
+  if (basket) await prisma.basketItem.deleteMany({ where: { basketId: basket.id } });
   res.json({ message: 'Basket cleared' });
 });
 
-// Remove an item from a user's basket
-app.delete('/basket/item', (req, res) => {
+app.delete('/basket/item', async (req, res) => {
   const { userId, productId } = req.body;
   if (!userId || !productId) return res.status(400).json({ error: 'userId and productId are required' });
-  if (!baskets[userId]) return res.json({ message: 'Nothing to remove' });
-  baskets[userId] = baskets[userId].filter(item => item.productId !== productId);
+  const basket = await prisma.basket.findFirst({ where: { userId } });
+  if (basket) await prisma.basketItem.deleteMany({ where: { basketId: basket.id, productId } });
   res.json({ message: 'Item removed' });
 });
 
