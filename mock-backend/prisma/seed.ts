@@ -22,10 +22,10 @@ async function main() {
   // Seed products
   await prisma.product.createMany({
     data: [
-      { id: 'prod-1', name: 'Cirkel Kaffe Poster', price: 49.99, stock: 10, imageUrl: '/media/Cirkel_Kaffe.JPG', deleted: false },
-      { id: 'prod-2', name: 'Mickey Mouse Poster', price: 54.99, stock: 6, imageUrl: '/media/Mickey_Mouse.JPG', deleted: false },
-      { id: 'prod-3', name: 'Permild & Rosengreen Horse Poster', price: 48.99, stock: 11, imageUrl: '/media/Permild&Rosengreen_Hest.JPG', deleted: false },
-      { id: 'prod-4', name: 'Robin Hood Poster', price: 52.99, stock: 10, imageUrl: '/media/Robin_Hood.JPG', deleted: false },
+      { id: 'prod-1', name: 'Cirkel Kaffe Poster', price: 49.99, stock: 10, imageUrl: '/media/Cirkel_Kaffe.JPG', deleted: false, category: 'Art' },
+      { id: 'prod-2', name: 'Mickey Mouse Poster', price: 54.99, stock: 6, imageUrl: '/media/Mickey_Mouse.JPG', deleted: false, category: 'Movie' },
+      { id: 'prod-3', name: 'Permild & Rosengreen Horse Poster', price: 48.99, stock: 11, imageUrl: '/media/Permild&Rosengreen_Hest.JPG', deleted: false, category: 'Movie' },
+      { id: 'prod-4', name: 'Robin Hood Poster', price: 52.99, stock: 10, imageUrl: '/media/Robin_Hood.JPG', deleted: false, category: 'Movie' },
     ],
   });
 
