@@ -30,10 +30,10 @@ class RabbitMQService {
       // Call your email-sending logic here
       const { orderId, items } = message;
       await EmailService.sendEmail(
-        'user@example.com', // Replace with the user's email
+        'antik.moderne.dls@gmail.com', // Replace with the user's email
         `Order Confirmation - ${orderId}`,
         `Your order has been confirmed. Items: ${JSON.stringify(items)}`,
-        'ORDER_CONFIRMED'
+        'CHECKOUT'
       );
     });
 

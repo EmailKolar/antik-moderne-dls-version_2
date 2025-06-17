@@ -1,9 +1,17 @@
 import { prisma } from '../config/database';
 
 export class ProductService {
-  async getAllProducts() {
-    // Only return products that are not deleted
-    return prisma.product.findMany({ where: { deleted: false } });
+  async getAllProducts(search?: string) {
+    // Only return products that are not deleted, and filter by search if provided
+    const where: any = { deleted: false };
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    return prisma.product.findMany({ where });
   }
 
   async getProductById(productId: string) {
