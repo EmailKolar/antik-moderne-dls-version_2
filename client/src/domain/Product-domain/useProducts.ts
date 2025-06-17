@@ -5,10 +5,10 @@ import { Product } from "./Product";
 
 const apiClient = new ApiClient<Product>("/products");
 
-const useProducts = () =>
+const useProducts = (search?: string) =>
   useQuery<Product[], Error>(
-    ["products"],
-    () => apiClient.getAll(),
+    ["products", search],
+    () => apiClient.getAll({ params: search ? { search } : {} }),
     { staleTime: Infinity }
   );
 

@@ -7,10 +7,11 @@ import ProductCardContainer from "./ProductCardContainer";
 
 interface Props {
   selectedCategoryId?: string;
+  search?: string;
 }
 
-const ProductGrid = ({ selectedCategoryId }: Props) => {
-  const { data, error, } = useProducts();
+const ProductGrid = ({ selectedCategoryId, search }: Props) => {
+  const { data, error, } = useProducts(search);
   console.log(data)
 
   if (error) return <Text color="tomato">{error.message}</Text>;
