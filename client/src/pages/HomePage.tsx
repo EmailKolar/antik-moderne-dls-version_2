@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import CategorySidebar from "../domain/Category/CategorySidebar";
 import ProductGrid from "../domain/Product-domain/ProductGrid";
@@ -29,10 +30,27 @@ function HomePage() {
         {isAdmin && (
           <Button colorScheme="purple" mb={4} onClick={() => navigate("/admin/products")}>Admin: Manage Products</Button>
         )}
+        {/* Sentry test button */}
+        {/*<Button
+          colorScheme="red"
+          mb={4}
+          onClick={() => {
+            try {
+              throw new Error("Sentry Test Error");
+            } catch (error) {
+              Sentry.captureException(error);
+              throw error; 
+            }
+          }}
+        >
+          Break the world
+        </Button>*/}
         <ProductGrid selectedCategoryId={selectedCategoryId} />
       </Box>
       
+      
     </HStack>
+    
   );
 }
 
