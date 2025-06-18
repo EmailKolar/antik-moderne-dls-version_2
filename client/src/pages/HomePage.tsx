@@ -2,7 +2,7 @@ import { HStack, Box } from "@chakra-ui/react";
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import CategorySidebar from "../domain/Category/CategorySidebar";
@@ -11,11 +11,17 @@ import useCategory from "../domain/Category/useCategory";
 
 
 
+
 function HomePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
-  const { user,  } = useUser();
+  const { user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const isAdmin = user?.publicMetadata?.role === "admin";
+
+  // Get search param from URL
+  const params = new URLSearchParams(location.search);
+  const search = params.get("search") || "";
 
   return (
     <HStack align="start" spacing={0}>
@@ -27,6 +33,7 @@ function HomePage() {
         />
       </Box>
       <Box flex="1" p={4}>
+        
         {isAdmin && (
           <Button colorScheme="purple" mb={4} onClick={() => navigate("/admin/products")}>Admin: Manage Products</Button>
         )}
@@ -45,7 +52,7 @@ function HomePage() {
         >
           Break the world
         </Button>*/}
-        <ProductGrid selectedCategoryId={selectedCategoryId} />
+        <ProductGrid selectedCategoryId={selectedCategoryId} search={search} />
       </Box>
       
       
