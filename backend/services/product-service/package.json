@@ -19,6 +19,8 @@
     "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/express": "^1.5.0",
     "@prisma/client": "^5.0.0",
+    "@sentry/node": "^9.30.0",
+    "@sentry/tracing": "^7.120.3",
     "amqplib": "^0.10.7",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",

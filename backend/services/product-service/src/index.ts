@@ -1,14 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import productRoutes from './routes/product.routes';
 import { prisma } from './config/database';
 import { connectRabbitMQ } from './config/rabbitmq';
 import RabbitMQService from './services/rabbitmq.service';
 import { ClerkExpressRequireAuth, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+import 'dotenv/config';  
+import * as Sentry from '@sentry/node';  
 
-
-dotenv.config();
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  debug: true,
+});
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -35,6 +41,13 @@ app.get('/metrics', async (_req, res) => {
 
 // Product routes (protected by Clerk for req.auth, but GETs are public)
 app.use('/products', productRoutes);
+
+// sentry test route
+app.get('/debug-sentry', (_req, _res) => {
+  throw new Error('My first Sentry error!');
+});
+
+Sentry.setupExpressErrorHandler(app);
 
 const start = async () => {
   try {

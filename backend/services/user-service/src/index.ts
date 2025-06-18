@@ -1,14 +1,22 @@
 // backend/services/user-service/src/index.ts
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import webhookRoutes from './routes/webhook.routes';
 import RabbitMQClient from './config/rabbitmq';
+import 'dotenv/config';  
+import * as Sentry from '@sentry/node';  
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  debug: true,
+});
 
 console.log('Starting user service...');
 
 // Load environment variables
-dotenv.config();
 console.log('Environment variables loaded');
 
 const app = express();
@@ -42,6 +50,13 @@ app.get('/health', (req, res) => {
   console.log('Health check requested');
   res.json({ status: 'ok' });
 });
+
+// sentry test route
+app.get('/debug-sentry', (_req, _res) => {
+  throw new Error('My first Sentry error!');
+});
+
+Sentry.setupExpressErrorHandler(app);
 
 async function startServer() {
   try {
